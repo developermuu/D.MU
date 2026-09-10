@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>D.MU - Layanan Jasa</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap" rel="stylesheet" />
+
+    <!-- Firebase SDK (compat) -->
+    <script src="https://www.gstatic.com/firebasejs/11.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.0.0/firebase-database-compat.js"></script>
+
+    <style>
+        /* ─────────── RESET & BASE ─────────── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f6f9fc;
+            color: #1a1a2e;
+            min-height: 100vh;
+            padding-bottom: 40px;
+        }
+
+        /* ─────────── SCROLLBAR ─────────── */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #e8edf3;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2a7de1;
+            border-radius: 12px;
+        }
+
+        /* ─────────── HEADER / BRAND ─────────── */
+        .header {
+            background: linear-gradient(135deg, #0b1a33 0%, #1a3a6b 50%, #2a7de1 100%);
+            padding: 28px 24px 20px;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 6px 30px rgba(10, 30, 70, 0.25);
+            border-radius: 0 0 32px 32px;
+        }
+
+        .header .brand {
+            font-size: 3rem;
+            font-weight: 900;
+            color: #ffffff;
+            letter-spacing: -1px;
+            text-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+        }
+        .header .brand span {
+            color: #ffd866;
+        }
+
+        .header .tagline {
+            font-size: 1.05rem;
+            font-weight: 400;
+            color: rgba(255, 255, 255, 0.85);
+            margin-top: 2px;
+            letter-spacing: 1px;
+        }
+
+        .header .datetime {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.75);
+            margin-top: 8px;
+            letter-spacing: 0.5px;
+            background: rgba(255, 255, 255, 0.08);
+            display: inline-block;
+            padding: 4px 20px;
+            border-radius: 40px;
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        .header .datetime i {
+            margin-right: 8px;
+            font-size: 0.8rem;
+        }
+
+        /* ─────────── SEARCH BAR ─────────── */
+        .search-wrapper {
+            max-width: 720px;
+            margin: -18px auto 0;
+            padding: 0 20px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            background: #ffffff;
+            border-radius: 60px;
+            padding: 4px 4px 4px 22px;
+            box-shadow: 0 8px 32px rgba(10, 30, 70, 0.13);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: box-shadow 0.3s ease, transform 0.2s ease;
+        }
+        .search-box:focus-within {
+            box-shadow: 0 8px 40px rgba(42, 125, 225, 0.25);
+            transform: translateY(-2px);
+        }
+
+        .search-box i {
+            color: #8899bb;
+            font-size: 1.1rem;
+            margin-right: 12px;
+        }
+
+        .search-box input {
+            flex: 1;
+            border: none;
+            outline: none;
+            padding: 16px 0;
+            font-size: 1rem;
+            font-family: 'Inter', sans-serif;
+            background: transparent;
+            color: #1a1a2e;
+        }
+        .search-box input::placeholder {
+            color: #aab8d0;
+            font-weight: 400;
+        }
+
+        .search-box .clear-btn {
+            background: none;
+            border: none;
+            color: #aab8d0;
+            cursor: pointer;
+            font-size: 1.1rem;
+            padding: 0 12px;
+            display: none;
+            transition: color 0.2s;
+        }
+        .search-box .clear-btn.visible {
+            display: block;
+        }
+        .search-box .clear-btn:hover {
+            color: #e74c5e;
+        }
+
+        .search-box .search-btn {
+            background: linear-gradient(135deg, #2a7de1, #1a4f9e);
+            border: none;
+            border-radius: 60px;
+            padding: 12px 28px;
+            color: #fff;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            font-family: 'Inter', sans-serif;
+            letter-spacing: 0.3px;
+            white-space: nowrap;
+        }
+        .search-box .search-btn:hover {
+            transform: scale(1.03);
+            box-shadow: 0 4px 16px rgba(42, 125, 225, 0.4);
+        }
+
+        /* ─────────── COUNTER ─────────── */
+        .counter {
+            max-width: 1200px;
+            margin: 28px auto 0;
+            padding: 0 24px;
+            font-size: 0.9rem;
+            color: #5a6f8c;
+            font-weight: 500;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .counter .count-badge {
+            background: #e8edf3;
+            padding: 4px 16px;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #1a3a6b;
+        }
+
+        /* ─────────── LOADING OVERLAY ─────────── */
+        .loading-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 999;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(6px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.4s ease;
+        }
+        .loading-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        .loading-overlay .spinner {
+            width: 48px;
+            height: 48px;
+            border: 5px solid #e8edf3;
+            border-top-color: #2a7de1;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        .loading-overlay p {
+            margin-top: 16px;
+            color: #4a5f7a;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+            text-align: center;
+            padding: 0 20px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* ─────────── PRODUCT GRID ─────────── */
+        .product-grid {
+            max-width: 1280px;
+            margin: 24px auto 0;
+            padding: 0 20px 40px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 28px;
+        }
+
+        .product-card {
+            background: #ffffff;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+            border: 1px solid rgba(0, 0, 0, 0.03);
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            display: flex;
+            flex-direction: column;
+        }
+        .product-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 16px 48px rgba(10, 30, 70, 0.10);
+            border-color: rgba(42, 125, 225, 0.12);
+        }
+
+        .product-card .card-img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            background: #eef2f7;
+            transition: transform 0.4s ease;
+            image-rendering: auto;
+        }
+        .product-card:hover .card-img {
+            transform: scale(1.02);
+        }
+
+        .product-card .card-body {
+            padding: 18px 20px 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .product-card .card-body .product-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #0b1a33;
+            line-height: 1.3;
+            margin-bottom: 2px;
+        }
+
+        .product-card .card-body .price-wrapper {
+            display: flex;
+            align-items: baseline;
+            flex-wrap: wrap;
+            gap: 6px 12px;
+            margin: 4px 0 8px;
+        }
+
+        .product-card .card-body .price-original {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #aab8d0;
+            text-decoration: line-through;
+        }
+
+        .product-card .card-body .price-discount {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: #e74c3c;
+        }
+
+        .product-card .card-body .price-discount small {
+            font-weight: 400;
+            font-size: 0.8rem;
+            color: #6a7f9e;
+        }
+
+        .product-card .card-body .product-desc {
+            font-size: 0.92rem;
+            color: #4a5f7a;
+            line-height: 1.5;
+            flex: 1;
+            margin-bottom: 16px;
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 3;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-height: 4.5rem;
+        }
+
+        .product-card .card-body .wa-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background: linear-gradient(135deg, #25d366, #128c7e);
+            color: #fff;
+            border: none;
+            border-radius: 60px;
+            padding: 12px 20px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            font-family: 'Inter', sans-serif;
+            text-decoration: none;
+            width: 100%;
+            margin-top: auto;
+        }
+        .product-card .card-body .wa-btn i {
+            font-size: 1.2rem;
+        }
+        .product-card .card-body .wa-btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 6px 24px rgba(37, 211, 102, 0.35);
+        }
+
+        /* ─────────── EMPTY STATE ─────────── */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6a7f9e;
+        }
+        .empty-state i {
+            font-size: 3.4rem;
+            color: #c8d6e8;
+            margin-bottom: 16px;
+        }
+        .empty-state h3 {
+            font-weight: 600;
+            color: #2a3f5e;
+            margin-bottom: 6px;
+        }
+
+        /* ─────────── TOAST NOTIFICATION ─────────── */
+        .toast {
+            position: fixed;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background: #0b1a33;
+            color: #fff;
+            padding: 14px 28px;
+            border-radius: 60px;
+            font-weight: 500;
+            font-size: 0.95rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            z-index: 600;
+            opacity: 0;
+            transition: all 0.4s ease;
+            pointer-events: none;
+            white-space: nowrap;
+            max-width: 90%;
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* ─────────── DISCOUNT BADGE ON CARD ─────────── */
+        .discount-badge {
+            background: #e74c3c;
+            color: #fff;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 2px 10px;
+            border-radius: 40px;
+            display: inline-block;
+            margin-left: 6px;
+        }
+
+        /* ─────────── FIREBASE STATUS INDICATOR ─────────── */
+        .firebase-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.6);
+            margin-left: 12px;
+            background: rgba(255, 255, 255, 0.08);
+            padding: 2px 12px;
+            border-radius: 40px;
+        }
+        .firebase-status .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .firebase-status .dot.online {
+            background: #4caf50;
+        }
+        .firebase-status .dot.offline {
+            background: #f44336;
+            animation: pulse 1.2s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%,
+            100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.3;
+            }
+        }
+
+        /* ─────────── RESPONSIVE ─────────── */
+        @media (max-width: 768px) {
+            .header .brand {
+                font-size: 2.2rem;
+            }
+            .header .tagline {
+                font-size: 0.9rem;
+            }
+            .header .datetime {
+                font-size: 0.7rem;
+                padding: 3px 14px;
+            }
+
+            .search-box {
+                padding: 4px 4px 4px 16px;
+                border-radius: 40px;
+            }
+            .search-box input {
+                padding: 12px 0;
+                font-size: 0.9rem;
+            }
+            .search-box .search-btn {
+                padding: 10px 18px;
+                font-size: 0.8rem;
+            }
+
+            .product-grid {
+                grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+                gap: 18px;
+                padding: 0 16px 30px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .product-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 12px;
+            }
+            .product-card .card-img {
+                height: 140px;
+            }
+            .product-card .card-body {
+                padding: 12px 14px 14px;
+            }
+            .product-card .card-body .product-name {
+                font-size: 0.95rem;
+            }
+            .product-card .card-body .price-original {
+                font-size: 0.85rem;
+            }
+            .product-card .card-body .price-discount {
+                font-size: 1.1rem;
+            }
+            .product-card .card-body .product-desc {
+                font-size: 0.8rem;
+                display: -webkit-box;
+                -webkit-box-orient: vertical;
+                -webkit-line-clamp: 2;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                max-height: 2.6rem;
+                line-height: 1.3rem;
+            }
+            .product-card .card-body .wa-btn {
+                padding: 8px 12px;
+                font-size: 0.8rem;
+                gap: 6px;
+            }
+            .product-card .card-body .wa-btn i {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ─── LOADING OVERLAY ─── -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+        <p>D.MU "Fokus Mempermudah Kebutuhan Anda"</p>
+    </div>
+
+    <!-- ─── HEADER ─── -->
+    <header class="header">
+        <div class="brand">D.<span>MU</span></div>
+        <div class="tagline">Fokus Mempermudah Kebutuhan Anda</div>
+        <div class="datetime" id="dateTimeDisplay">
+            <i class="far fa-calendar-alt"></i> <span id="dateTimeText">Loading...</span>
+            <span class="firebase-status" id="firebaseStatus">
+                <span class="dot" id="statusDot"></span>
+                <span id="statusText">--</span>
+            </span>
+        </div>
+    </header>
+
+    <!-- ─── SEARCH ─── -->
+    <div class="search-wrapper">
+        <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" id="searchInput" placeholder="Cari jasa..." autocomplete="off" />
+            <button class="clear-btn" id="clearBtn" aria-label="Hapus pencarian">
+                <i class="fas fa-times-circle"></i>
+            </button>
+            <button class="search-btn" id="searchBtn">Cari</button>
+        </div>
+    </div>
+
+    <!-- ─── COUNTER ─── -->
+    <div class="counter">
+        <span id="resultCount">Menampilkan 0 jasa</span>
+        <span class="count-badge" id="totalBadge">Total: 0</span>
+    </div>
+
+    <!-- ─── PRODUCT GRID ─── -->
+    <div class="product-grid" id="productGrid"></div>
+
+    <!-- ─── TOAST ─── -->
+    <div class="toast" id="toast"></div>
+
+    <!-- ════════════════════════════════════════════════ -->
+    <!-- ─── JAVASCRIPT ─── -->
+    <!-- ════════════════════════════════════════════════ -->
+    <script>
+        (function() {
+            'use strict';
+
+            // ─── FIREBASE CONFIG ────────────────────────────
+            const firebaseConfig = {
+                apiKey: "AIzaSyA4fZb7G0sg0cjmGfW5W20nMMftRn2Mbx4",
+                authDomain: "d-mu-developer.firebaseapp.com",
+                projectId: "d-mu-developer",
+                storageBucket: "d-mu-developer.firebasestorage.app",
+                messagingSenderId: "771251763698",
+                appId: "1:771251763698:web:155ae3f240d5ed3cb7936b",
+                measurementId: "G-K63SM4XMEH"
+            };
+
+            // ─── INIT FIREBASE ──────────────────────────────
+            let db;
+            let servicesRef;
+            let firebaseReady = false;
+
+            try {
+                firebase.initializeApp(firebaseConfig);
+                db = firebase.database();
+                servicesRef = db.ref('services');
+                firebaseReady = true;
+                updateStatus(true);
+            } catch (err) {
+                console.error('Firebase init error:', err);
+                firebaseReady = false;
+                updateStatus(false);
+                showToast('❌ Gagal terhubung ke Firebase');
+            }
+
+            function updateStatus(online) {
+                const dot = document.getElementById('statusDot');
+                const text = document.getElementById('statusText');
+                if (!dot || !text) return;
+                if (online) {
+                    dot.className = 'dot online';
+                    text.textContent = 'Online';
+                } else {
+                    dot.className = 'dot offline';
+                    text.textContent = 'Firebase Offline';
+                }
+            }
+
+            // ─── KONFIGURASI ────────────────────────────────
+            const WA_NUMBER = '6282299327018';
+
+            const PERIOD_OPTIONS = [
+                { value: 'per jasa', label: 'Per Jasa' },
+                { value: 'per hari', label: 'Per Hari' },
+                { value: 'per minggu', label: 'Per Minggu' },
+                { value: 'per bulan', label: 'Per Bulan' },
+                { value: 'per web', label: 'Per Web' },
+                { value: 'per file', label: 'Per File' },
+                { value: 'per tugas', label: 'Per Tugas' }
+            ];
+
+            // ─── STATE ──────────────────────────────────────
+            let services = [];
+            let filteredServices = [];
+            let searchQuery = '';
+            let isLoading = true;
+
+            // ─── DOM REFS ──────────────────────────────────
+            const grid = document.getElementById('productGrid');
+            const searchInput = document.getElementById('searchInput');
+            const clearBtn = document.getElementById('clearBtn');
+            const searchBtn = document.getElementById('searchBtn');
+            const resultCount = document.getElementById('resultCount');
+            const totalBadge = document.getElementById('totalBadge');
+            const toast = document.getElementById('toast');
+            const dateTimeText = document.getElementById('dateTimeText');
+            const loadingOverlay = document.getElementById('loadingOverlay');
+
+            let toastTimer = null;
+
+            // ─── DATE/TIME ──────────────────────────────────
+            function updateDateTime() {
+                const now = new Date();
+                const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+                    'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+                ];
+                const day = now.getDate();
+                const month = months[now.getMonth()];
+                const year = now.getFullYear();
+                const hours = String(now.getHours()).padStart(2, '0');
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                const seconds = String(now.getSeconds()).padStart(2, '0');
+                dateTimeText.textContent = `${day} ${month} ${year} / ${hours}:${minutes}:${seconds}`;
+            }
+            updateDateTime();
+            setInterval(updateDateTime, 1000);
+
+            // ─── HELPERS ────────────────────────────────────
+            function formatPrice(num) {
+                return 'Rp ' + (num || 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+            }
+
+            function generateId() {
+                return Date.now() + Math.floor(Math.random() * 1000);
+            }
+
+            function showToast(msg) {
+                if (!toast) return;
+                if (toastTimer) clearTimeout(toastTimer);
+                toast.textContent = msg;
+                toast.classList.add('show');
+                toastTimer = setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 2200);
+            }
+
+            function getDiscountedPrice(price, discountPercent) {
+                if (!discountPercent || discountPercent <= 0) return price;
+                return Math.round(price * (1 - discountPercent / 100));
+            }
+
+            function getPeriodLabel(value) {
+                const found = PERIOD_OPTIONS.find(p => p.value === value);
+                return found ? found.label : value;
+            }
+
+            function escapeHtml(str) {
+                if (!str) return '';
+                const div = document.createElement('div');
+                div.textContent = str;
+                return div.innerHTML;
+            }
+
+            // ─── FIREBASE: LOAD (READ ONLY) ─────────────────
+            async function loadData() {
+                if (!firebaseReady) {
+                    showToast('❌ Firebase tidak tersedia');
+                    return false;
+                }
+                try {
+                    const snapshot = await servicesRef.get();
+                    const data = snapshot.val();
+
+                    if (data) {
+                        if (Array.isArray(data)) {
+                            services = data;
+                        } else if (typeof data === 'object' && data !== null) {
+                            services = Object.values(data);
+                        } else {
+                            services = [];
+                        }
+                    } else {
+                        services = [];
+                    }
+
+                    // Normalisasi field
+                    services.forEach(s => {
+                        if (!s.id) s.id = generateId();
+                        if (s.discount === undefined) s.discount = 0;
+                        if (!s.period) s.period = 'per jasa';
+                        if (!s.image) s.image = '';
+                        if (!s.description) s.description = '';
+                    });
+
+                    return true;
+                } catch (error) {
+                    console.error('Error loading data from Firebase:', error);
+                    showToast('❌ Gagal memuat data');
+                    return false;
+                }
+            }
+
+            // ─── RENDER PRODUCT CARDS ──────────────────────
+            function renderCards(items) {
+                if (!items || items.length === 0) {
+                    grid.innerHTML = `
+                        <div class="empty-state" style="grid-column:1/-1;">
+                            <i class="fas fa-box-open"></i>
+                            <h3>Belum ada jasa tersedia</h3>
+                            <p style="color:#8a9fb8;">Silakan cek kembali nanti atau hubungi kami via WhatsApp.</p>
+                        </div>
+                    `;
+                    resultCount.textContent = 'Menampilkan 0 jasa';
+                    totalBadge.textContent = 'Total: ' + services.length;
+                    return;
+                }
+
+                let html = '';
+                items.forEach(item => {
+                    const originalPrice = item.price || 0;
+                    const discount = item.discount || 0;
+                    const finalPrice = getDiscountedPrice(originalPrice, discount);
+                    const hasDiscount = discount > 0;
+                    const periodLabel = getPeriodLabel(item.period || 'per jasa');
+
+                    const img = item.image || '';
+                    const imgTag = img ?
+                        `<img class="card-img" src="${img}" alt="${escapeHtml(item.name)}" loading="lazy" onerror="this.src='https://via.placeholder.com/600x400/eef2f7/8a9fb8?text=Gambar'">` :
+                        `<div class="card-img" style="display:flex;align-items:center;justify-content:center;color:#8a9fb8;background:#eef2f7;font-size:0.9rem;"><i class="fas fa-image" style="font-size:2rem;opacity:0.3;"></i></div>`;
+
+                    const priceHtml = hasDiscount ?
+                        `
+                            <span class="price-original">${formatPrice(originalPrice)}</span>
+                            <span class="price-discount">${formatPrice(finalPrice)} <small>/ ${periodLabel}</small></span>
+                            <span class="discount-badge">-${discount}%</span>
+                        ` :
+                        `
+                            <span class="price-discount">${formatPrice(originalPrice)} <small>/ ${periodLabel}</small></span>
+                        `;
+
+                    html += `
+                        <div class="product-card" data-id="${item.id}">
+                            ${imgTag}
+                            <div class="card-body">
+                                <div class="product-name">${escapeHtml(item.name)}</div>
+                                <div class="price-wrapper">
+                                    ${priceHtml}
+                                </div>
+                                <div class="product-desc">${escapeHtml(item.description || 'Tidak ada deskripsi.')}</div>
+                                <button class="wa-btn" data-name="${escapeHtml(item.name)}" data-price="${formatPrice(finalPrice)}" data-period="${periodLabel}">
+                                    <i class="fab fa-whatsapp"></i> Tanya via WA
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                grid.innerHTML = html;
+                resultCount.textContent = `Menampilkan ${items.length} jasa`;
+                totalBadge.textContent = 'Total: ' + services.length;
+
+                grid.querySelectorAll('.wa-btn').forEach(btn => {
+                    btn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        const name = this.getAttribute('data-name') || 'jasa';
+                        const price = this.getAttribute('data-price') || '';
+                        const period = this.getAttribute('data-period') || '';
+                        const msg =
+                            `Halo%20saya%20tertarik%20dengan%20jasa%20"${encodeURIComponent(name)}"%20(${encodeURIComponent(price)}%20/ ${encodeURIComponent(period)})`;
+                        window.open(`https://wa.me/${WA_NUMBER}?text=${msg}`, '_blank');
+                    });
+                });
+            }
+
+            // ─── FILTER & SEARCH ───────────────────────────
+            function filterAndRender() {
+                const q = searchQuery.trim().toLowerCase();
+                if (!q) {
+                    filteredServices = [...services];
+                } else {
+                    filteredServices = services.filter(s =>
+                        (s.name || '').toLowerCase().includes(q) ||
+                        (s.description && s.description.toLowerCase().includes(q))
+                    );
+                }
+                renderCards(filteredServices);
+            }
+
+            // ─── SEARCH HANDLERS ────────────────────────────
+            function handleSearch() {
+                searchQuery = searchInput.value;
+                clearBtn.classList.toggle('visible', searchQuery.length > 0);
+                filterAndRender();
+            }
+
+            function clearSearch() {
+                searchInput.value = '';
+                searchQuery = '';
+                clearBtn.classList.remove('visible');
+                filterAndRender();
+                searchInput.focus();
+            }
+
+            // ─── INIT ──────────────────────────────────────
+            async function init() {
+                try {
+                    const loaded = await loadData();
+                    if (!loaded) services = [];
+                } catch (err) {
+                    console.error('Init error:', err);
+                    services = [];
+                }
+
+                if (!Array.isArray(services)) services = [];
+
+                isLoading = false;
+                loadingOverlay.classList.add('hidden');
+
+                filterAndRender();
+
+                // ── Event listeners ──
+                searchInput.addEventListener('input', handleSearch);
+                searchBtn.addEventListener('click', handleSearch);
+                searchInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') handleSearch();
+                });
+                clearBtn.addEventListener('click', clearSearch);
+            }
+
+            // ─── RUN ────────────────────────────────────────
+            if (document.readyState === 'complete' || document.readyState === 'interactive') {
+                init();
+            } else {
+                document.addEventListener('DOMContentLoaded', init);
+            }
+
+        })();
+    </script>
+
+</body>
+</html>
