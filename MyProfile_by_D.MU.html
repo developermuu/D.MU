@@ -1,0 +1,4998 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
+    <title>Profil Saya — Firebase</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js">
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js">
+    </script>
+
+    <style>
+        /* ============================================================
+           RESET & GLOBAL — CENTERED PORTRAIT LAYOUT
+           ============================================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            height: 100%;
+            width: 100%;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #e8e4de;
+            color: #1e1a16;
+            transition: background 0.3s, color 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px;
+        }
+
+        [data-theme="dark"] {
+            background: #0e0c0a;
+            color: #eae6e0;
+        }
+
+        ::-webkit-scrollbar {
+            width: 3px;
+            height: 3px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #ccc;
+            border-radius: 6px;
+        }
+        [data-theme="dark"] ::-webkit-scrollbar-thumb {
+            background: #3d3a36;
+        }
+
+        /* ============================================================
+           APP WRAPPER
+           ============================================================ */
+        .app-wrapper {
+            width: 100%;
+            max-width: 480px;
+            height: 100%;
+            max-height: 860px;
+            margin: 0 auto;
+            position: relative;
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            background: #f6f4f0;
+            transition: background 0.3s, box-shadow 0.3s;
+        }
+        [data-theme="dark"] .app-wrapper {
+            background: #12100e;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+        }
+
+        @media (max-width: 520px) {
+            .app-wrapper {
+                max-height: 100vh;
+                border-radius: 16px;
+            }
+            html,
+            body {
+                padding: 6px;
+            }
+        }
+        @media (max-width: 420px) {
+            .app-wrapper {
+                border-radius: 12px;
+            }
+            html,
+            body {
+                padding: 4px;
+            }
+        }
+
+        /* ============================================================
+           STARS BACKGROUND
+           ============================================================ */
+        #stars-container {
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+            background: #f6f4f0;
+            transition: background 0.3s;
+            border-radius: 24px;
+        }
+        [data-theme="dark"] #stars-container {
+            background: #12100e;
+        }
+        .star {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.05);
+            animation: twinkle 4s ease-in-out infinite alternate;
+        }
+        [data-theme="dark"] .star {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        @keyframes twinkle {
+            0% {
+                opacity: 0.2;
+                transform: scale(0.8);
+            }
+            100% {
+                opacity: 0.5;
+                transform: scale(1.2);
+            }
+        }
+
+        /* ============================================================
+           MAIN CONTAINER
+           ============================================================ */
+        .container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            padding: 10px 12px 12px;
+            background: rgba(255, 252, 248, 0.88);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            transition: background 0.3s;
+            overflow: hidden;
+            border-radius: 24px;
+        }
+        [data-theme="dark"] .container {
+            background: rgba(18, 16, 14, 0.94);
+        }
+
+        /* ============================================================
+           HEADER
+           ============================================================ */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+            padding-bottom: 5px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            flex-wrap: wrap;
+            gap: 4px;
+            position: relative;
+            z-index: 10;
+        }
+        [data-theme="dark"] .header {
+            border-bottom-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .header-left h1 {
+            font-size: 15px;
+            font-weight: 600;
+            letter-spacing: -0.3px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #1e1a16;
+        }
+        [data-theme="dark"] .header-left h1 {
+            color: #eae6e0;
+        }
+        .header-left h1 .star-logo {
+            color: #c9a84c;
+            font-size: 15px;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            flex-shrink: 0;
+        }
+
+        /* ---- ONLINE STATUS ---- */
+        .online-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 8px;
+            font-weight: 600;
+            padding: 2px 8px 2px 6px;
+            border-radius: 20px;
+            background: rgba(0, 0, 0, 0.03);
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            color: #888;
+            transition: all 0.3s;
+            white-space: nowrap;
+            cursor: default;
+        }
+        [data-theme="dark"] .online-status {
+            background: rgba(255, 255, 255, 0.03);
+            border-color: rgba(255, 255, 255, 0.04);
+            color: #aaa;
+        }
+        .online-status .online-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            display: inline-block;
+            transition: background 0.3s;
+        }
+        .online-status .online-dot.online {
+            background: #4caf50;
+            box-shadow: 0 0 6px rgba(76, 175, 80, 0.4);
+        }
+        .online-status .online-dot.offline {
+            background: #e53935;
+            box-shadow: 0 0 6px rgba(229, 57, 53, 0.4);
+        }
+        .online-status .online-dot.checking {
+            background: #ffa726;
+            box-shadow: 0 0 6px rgba(255, 167, 38, 0.3);
+            animation: pulse 1s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%,
+            100% {
+                opacity: 0.4;
+                transform: scale(0.8);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.2);
+            }
+        }
+        .online-status .online-label {
+            font-size: 7px;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+        }
+        .online-status.online {
+            border-color: rgba(76, 175, 80, 0.2);
+            background: rgba(76, 175, 80, 0.05);
+        }
+        [data-theme="dark"] .online-status.online {
+            border-color: rgba(76, 175, 80, 0.15);
+            background: rgba(76, 175, 80, 0.04);
+        }
+        .online-status.offline {
+            border-color: rgba(229, 57, 53, 0.2);
+            background: rgba(229, 57, 53, 0.05);
+        }
+        [data-theme="dark"] .online-status.offline {
+            border-color: rgba(229, 57, 53, 0.15);
+            background: rgba(229, 57, 53, 0.04);
+        }
+
+        .datetime {
+            font-size: 9px;
+            color: #888;
+            background: rgba(0, 0, 0, 0.03);
+            padding: 2px 10px 2px 8px;
+            border-radius: 20px;
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        [data-theme="dark"] .datetime {
+            background: rgba(255, 255, 255, 0.03);
+            border-color: rgba(255, 255, 255, 0.04);
+            color: #bbb;
+        }
+        .datetime .clock-icon {
+            color: #c9a84c;
+            font-size: 9px;
+        }
+        .time-sep {
+            color: #ccc;
+        }
+        [data-theme="dark"] .time-sep {
+            color: #666;
+        }
+
+        .settings-btn {
+            background: rgba(0, 0, 0, 0.03);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            color: #888;
+            cursor: pointer;
+            transition: all 0.25s;
+            flex-shrink: 0;
+            position: relative;
+            z-index: 20;
+        }
+        [data-theme="dark"] .settings-btn {
+            background: rgba(255, 255, 255, 0.04);
+            border-color: rgba(255, 255, 255, 0.05);
+            color: #aaa;
+        }
+        .settings-btn:hover {
+            border-color: #c9a84c;
+            color: #c9a84c;
+            transform: rotate(60deg);
+        }
+
+        .theme-toggle {
+            background: rgba(0, 0, 0, 0.03);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: #888;
+            cursor: pointer;
+            transition: all 0.25s;
+            flex-shrink: 0;
+            position: relative;
+            z-index: 20;
+        }
+        [data-theme="dark"] .theme-toggle {
+            background: rgba(255, 255, 255, 0.04);
+            border-color: rgba(255, 255, 255, 0.05);
+            color: #aaa;
+        }
+        .theme-toggle:hover {
+            border-color: #c9a84c;
+            color: #c9a84c;
+        }
+        .theme-toggle .fa-sun {
+            display: none;
+        }
+        .theme-toggle .fa-moon {
+            display: inline-block;
+        }
+        [data-theme="dark"] .theme-toggle .fa-sun {
+            display: inline-block;
+        }
+        [data-theme="dark"] .theme-toggle .fa-moon {
+            display: none;
+        }
+
+        /* ============================================================
+           MOTIVATION BAR
+           ============================================================ */
+        .motivation-bar {
+            flex-shrink: 0;
+            padding: 4px 12px;
+            margin: 4px 0 5px 0;
+            background: rgba(0, 0, 0, 0.02);
+            border-radius: 10px;
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-height: 30px;
+            transition: background 0.3s;
+        }
+        [data-theme="dark"] .motivation-bar {
+            background: rgba(255, 255, 255, 0.02);
+            border-color: rgba(255, 255, 255, 0.04);
+        }
+        .motivation-icon {
+            color: #c9a84c;
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+        .motivation-text {
+            font-size: 11px;
+            font-weight: 400;
+            color: #3a342e;
+            flex: 1;
+            transition: opacity 0.3s, transform 0.3s;
+            line-height: 1.3;
+            font-style: italic;
+        }
+        [data-theme="dark"] .motivation-text {
+            color: #d5d0ca;
+        }
+        .motivation-text.fade {
+            opacity: 0;
+            transform: translateY(4px);
+        }
+        .motivation-author {
+            font-size: 9px;
+            color: #aaa;
+            font-style: italic;
+            margin-left: 4px;
+        }
+        [data-theme="dark"] .motivation-author {
+            color: #888;
+        }
+        .motivation-dots {
+            display: flex;
+            gap: 4px;
+            flex-shrink: 0;
+        }
+        .motivation-dots span {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.10);
+            cursor: pointer;
+            transition: all 0.25s;
+        }
+        [data-theme="dark"] .motivation-dots span {
+            background: rgba(255, 255, 255, 0.10);
+        }
+        .motivation-dots span.active {
+            background: #c9a84c;
+            transform: scale(1.3);
+        }
+
+        /* ============================================================
+           TAB NAV
+           ============================================================ */
+        .tab-nav {
+            display: flex;
+            gap: 3px;
+            flex-shrink: 0;
+            background: rgba(0, 0, 0, 0.02);
+            border-radius: 10px;
+            padding: 2px;
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            margin-bottom: 5px;
+            position: relative;
+            z-index: 5;
+        }
+        [data-theme="dark"] .tab-nav {
+            background: rgba(255, 255, 255, 0.02);
+            border-color: rgba(255, 255, 255, 0.04);
+        }
+        .tab-nav .tab-btn {
+            flex: 1;
+            padding: 4px 8px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            font-size: 10px;
+            font-weight: 500;
+            color: #999;
+            cursor: pointer;
+            transition: all 0.25s;
+            font-family: inherit;
+            text-align: center;
+        }
+        .tab-nav .tab-btn i {
+            margin-right: 4px;
+            font-size: 10px;
+        }
+        .tab-nav .tab-btn:hover {
+            color: #555;
+        }
+        [data-theme="dark"] .tab-nav .tab-btn:hover {
+            color: #ddd;
+        }
+        .tab-nav .tab-btn.active {
+            background: #c9a84c;
+            color: #fff;
+            box-shadow: 0 2px 10px rgba(201, 168, 76, 0.20);
+        }
+        .tab-nav .tab-btn.active:hover {
+            color: #fff;
+        }
+
+        /* ============================================================
+           SLIDES WRAPPER
+           ============================================================ */
+        .slides-wrapper {
+            flex: 1;
+            overflow: hidden;
+            border-radius: 10px;
+            position: relative;
+            min-height: 0;
+        }
+
+        .slide {
+            display: none;
+            height: 100%;
+            flex-direction: column;
+            overflow: hidden;
+            padding: 0 1px;
+        }
+
+        /* Profile slide = scrollable */
+        .slide[data-slide="0"] {
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding-right: 2px;
+        }
+        .slide[data-slide="0"]::-webkit-scrollbar {
+            width: 3px;
+        }
+        .slide[data-slide="0"]::-webkit-scrollbar-thumb {
+            background: #ccc;
+            border-radius: 6px;
+        }
+        [data-theme="dark"] .slide[data-slide="0"]::-webkit-scrollbar-thumb {
+            background: #3d3a36;
+        }
+
+        .slide.active-slide {
+            display: flex;
+            animation: slideIn 0.3s ease forwards;
+        }
+        @keyframes slideIn {
+            0% {
+                opacity: 0;
+                transform: translateX(10px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* ============================================================
+           SUB TAB
+           ============================================================ */
+        .sub-tab-nav {
+            display: flex;
+            gap: 2px;
+            flex-shrink: 0;
+            background: rgba(0, 0, 0, 0.02);
+            border-radius: 8px;
+            padding: 2px;
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            margin-bottom: 5px;
+        }
+        [data-theme="dark"] .sub-tab-nav {
+            background: rgba(255, 255, 255, 0.02);
+            border-color: rgba(255, 255, 255, 0.04);
+        }
+        .sub-tab-nav .sub-tab-btn {
+            flex: 1;
+            padding: 3px 6px;
+            border: none;
+            background: transparent;
+            border-radius: 6px;
+            font-size: 9px;
+            font-weight: 500;
+            color: #999;
+            cursor: pointer;
+            transition: all 0.25s;
+            font-family: inherit;
+            text-align: center;
+        }
+        .sub-tab-nav .sub-tab-btn i {
+            margin-right: 3px;
+            font-size: 9px;
+        }
+        .sub-tab-nav .sub-tab-btn:hover {
+            color: #555;
+        }
+        [data-theme="dark"] .sub-tab-nav .sub-tab-btn:hover {
+            color: #ddd;
+        }
+        .sub-tab-nav .sub-tab-btn.active {
+            background: #c9a84c;
+            color: #fff;
+        }
+
+        .sub-slides-wrapper {
+            flex: 1;
+            overflow: hidden;
+            border-radius: 8px;
+            position: relative;
+            min-height: 0;
+        }
+        .sub-slide {
+            display: none;
+            height: 100%;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .sub-slide.active-sub {
+            display: flex;
+            animation: subSlideIn 0.3s ease forwards;
+        }
+        @keyframes subSlideIn {
+            0% {
+                opacity: 0;
+                transform: translateX(8px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* ============================================================
+           CARDS
+           ============================================================ */
+        .card {
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 10px;
+            padding: 7px 10px;
+            margin-bottom: 4px;
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            transition: background 0.3s, border-color 0.3s;
+            flex-shrink: 0;
+        }
+        [data-theme="dark"] .card {
+            background: rgba(255, 255, 255, 0.03);
+            border-color: rgba(255, 255, 255, 0.04);
+        }
+        .card:last-child {
+            margin-bottom: 0;
+        }
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 3px;
+            flex-wrap: wrap;
+            gap: 3px;
+        }
+        .card-header h2 {
+            font-size: 11px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #1e1a16;
+        }
+        [data-theme="dark"] .card-header h2 {
+            color: #eae6e0;
+        }
+        .card-header h2 i {
+            color: #c9a84c;
+            font-size: 11px;
+        }
+
+        /* ============================================================
+           PROFILE — Enhanced Layout
+           ============================================================ */
+        .profile-section {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            flex-wrap: nowrap;
+        }
+
+        .photo-wrapper {
+            position: relative;
+            width: 72px;
+            height: 72px;
+            flex-shrink: 0;
+            cursor: pointer;
+            border-radius: 50%;
+            padding: 2px;
+            background: #c9a84c;
+            box-shadow: 0 2px 12px rgba(201, 168, 76, 0.18);
+            transition: all 0.3s;
+            align-self: center;
+            z-index: 5;
+        }
+        .photo-wrapper:hover {
+            transform: scale(1.03);
+            box-shadow: 0 4px 20px rgba(201, 168, 76, 0.28);
+        }
+        .photo-wrapper::after {
+            content: '✦';
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            font-size: 11px;
+            color: #c9a84c;
+            animation: starPulse 2s ease-in-out infinite;
+        }
+        @keyframes starPulse {
+            0%,
+            100% {
+                transform: scale(0.8);
+                opacity: 0.6;
+            }
+            50% {
+                transform: scale(1.2);
+                opacity: 1;
+            }
+        }
+        .photo-wrapper img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #fff;
+            display: block;
+            background: #f0ede8;
+        }
+        [data-theme="dark"] .photo-wrapper img {
+            border-color: #1e1a16;
+            background: #2a2622;
+        }
+
+        .photo-overlay {
+            position: absolute;
+            inset: 2px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.20);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s;
+            backdrop-filter: blur(2px);
+            cursor: pointer;
+            z-index: 10;
+        }
+        .photo-wrapper:hover .photo-overlay {
+            opacity: 1;
+        }
+        .photo-overlay .camera-icon {
+            font-size: 18px;
+            color: #fff;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.6), 0 0 40px rgba(201, 168, 76, 0.4);
+            background: rgba(0, 0, 0, 0.25);
+            padding: 5px;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.3s;
+        }
+        .photo-wrapper:hover .photo-overlay .camera-icon {
+            transform: scale(1.08);
+        }
+        [data-theme="dark"] .photo-overlay .camera-icon {
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.5), 0 0 60px rgba(201, 168, 76, 0.3);
+            background: rgba(0, 0, 0, 0.35);
+        }
+
+        #fileInput {
+            display: none !important;
+        }
+
+        .profile-info {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            justify-content: center;
+            padding-top: 2px;
+        }
+
+        .profile-name {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1e1a16;
+            letter-spacing: -0.2px;
+            line-height: 1.2;
+        }
+        [data-theme="dark"] .profile-name {
+            color: #eae6e0;
+        }
+        .profile-name .value.empty {
+            color: #bbb;
+            font-style: italic;
+        }
+        [data-theme="dark"] .profile-name .value.empty {
+            color: #777;
+        }
+
+        .profile-bio {
+            font-size: 11px;
+            color: #666;
+            line-height: 1.4;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            flex-wrap: wrap;
+            margin-top: 1px;
+        }
+        [data-theme="dark"] .profile-bio {
+            color: #bbb;
+        }
+        .profile-bio .value.empty {
+            color: #bbb;
+            font-style: italic;
+        }
+        [data-theme="dark"] .profile-bio .value.empty {
+            color: #777;
+        }
+
+        /* --- Profile detail rows (compact info grid) --- */
+        .profile-detail-row {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 10px;
+            color: #888;
+            flex-wrap: wrap;
+            padding: 1px 0;
+            line-height: 1.3;
+        }
+        [data-theme="dark"] .profile-detail-row {
+            color: #bbb;
+        }
+        .profile-detail-row i {
+            color: #c9a84c;
+            font-size: 10px;
+            width: 16px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        .profile-detail-row .detail-label {
+            color: #aaa;
+            font-weight: 400;
+            flex-shrink: 0;
+        }
+        [data-theme="dark"] .profile-detail-row .detail-label {
+            color: #888;
+        }
+        .profile-detail-row .detail-value {
+            color: #444;
+            word-break: break-word;
+        }
+        [data-theme="dark"] .profile-detail-row .detail-value {
+            color: #d5d0ca;
+        }
+        .profile-detail-row .detail-value.empty {
+            color: #bbb;
+            font-style: italic;
+        }
+        [data-theme="dark"] .profile-detail-row .detail-value.empty {
+            color: #777;
+        }
+
+        .profile-detail-row a.detail-value {
+            color: #c9a84c;
+            text-decoration: none;
+            transition: color 0.2s;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .profile-detail-row a.detail-value:hover {
+            color: #b8973a;
+            text-decoration: underline;
+        }
+        [data-theme="dark"] .profile-detail-row a.detail-value {
+            color: #d4b85c;
+        }
+        [data-theme="dark"] .profile-detail-row a.detail-value:hover {
+            color: #e8d07a;
+        }
+
+        .profile-detail-row .link-tag {
+            background: rgba(201, 168, 76, 0.10);
+            padding: 0 8px 0 6px;
+            border-radius: 12px;
+            font-size: 9px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            border: 1px solid rgba(201, 168, 76, 0.10);
+            transition: all 0.2s;
+            cursor: pointer;
+            color: #c9a84c;
+            text-decoration: none;
+        }
+        .profile-detail-row .link-tag:hover {
+            background: rgba(201, 168, 76, 0.18);
+            border-color: rgba(201, 168, 76, 0.25);
+            transform: translateY(-1px);
+        }
+        [data-theme="dark"] .profile-detail-row .link-tag {
+            background: rgba(201, 168, 76, 0.08);
+            border-color: rgba(201, 168, 76, 0.08);
+            color: #d4b85c;
+        }
+        [data-theme="dark"] .profile-detail-row .link-tag:hover {
+            background: rgba(201, 168, 76, 0.15);
+        }
+
+        .profile-detail-row .link-tag i {
+            font-size: 8px;
+            width: auto;
+            color: inherit;
+        }
+
+        /* --- Education card (new) --- */
+        .edu-card {
+            background: rgba(201, 168, 76, 0.04);
+            border-radius: 8px;
+            padding: 6px 10px;
+            border: 1px solid rgba(201, 168, 76, 0.08);
+            margin-top: 2px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        [data-theme="dark"] .edu-card {
+            background: rgba(201, 168, 76, 0.03);
+            border-color: rgba(201, 168, 76, 0.06);
+        }
+        .edu-card .edu-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 10px;
+            color: #555;
+            flex-wrap: wrap;
+        }
+        [data-theme="dark"] .edu-card .edu-row {
+            color: #ccc;
+        }
+        .edu-card .edu-row i {
+            color: #c9a84c;
+            font-size: 10px;
+            width: 16px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        .edu-card .edu-row .edu-label {
+            color: #aaa;
+            font-weight: 400;
+            flex-shrink: 0;
+            font-size: 9px;
+        }
+        [data-theme="dark"] .edu-card .edu-row .edu-label {
+            color: #888;
+        }
+        .edu-card .edu-row .edu-value {
+            color: #444;
+            font-weight: 500;
+        }
+        [data-theme="dark"] .edu-card .edu-row .edu-value {
+            color: #ddd;
+        }
+        .edu-card .edu-row .edu-value.empty {
+            color: #bbb;
+            font-style: italic;
+        }
+        [data-theme="dark"] .edu-card .edu-row .edu-value.empty {
+            color: #777;
+        }
+
+        /* ============================================================
+           SKILLS & TRAINING — tag style
+           ============================================================ */
+        .skills-scroll {
+            padding-right: 3px;
+            margin-bottom: 2px;
+        }
+        .skills-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            min-height: 20px;
+        }
+        .skill-tag {
+            background: rgba(0, 0, 0, 0.05);
+            padding: 2px 12px 2px 14px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            transition: all 0.2s;
+            animation: tagIn 0.3s ease forwards;
+            opacity: 0;
+            transform: translateX(-6px);
+            line-height: 1.4;
+        }
+        [data-theme="dark"] .skill-tag {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(255, 255, 255, 0.04);
+            color: #ddd;
+        }
+        @keyframes tagIn {
+            0% {
+                opacity: 0;
+                transform: translateX(-6px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        .skill-tag .skill-text {
+            font-size: 10px;
+        }
+
+        .empty-skills {
+            color: #bbb;
+            font-size: 10px;
+            font-style: italic;
+        }
+        [data-theme="dark"] .empty-skills {
+            color: #888;
+        }
+
+        /* ============================================================
+           EXPERIENCE — Enhanced Display (NO SCROLL)
+           ============================================================ */
+        .exp-scroll {
+            padding-right: 3px;
+            margin-bottom: 2px;
+        }
+        .exp-container {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            min-height: 20px;
+        }
+
+        .exp-detail-item {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            padding: 5px 10px;
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            transition: all 0.2s;
+        }
+        [data-theme="dark"] .exp-detail-item {
+            background: rgba(255, 255, 255, 0.02);
+            border-color: rgba(255, 255, 255, 0.04);
+        }
+        .exp-detail-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .exp-detail-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 6px;
+            padding: 2px 0;
+            flex-wrap: wrap;
+            cursor: pointer;
+        }
+        .exp-detail-header .exp-company {
+            font-size: 11px;
+            font-weight: 700;
+            color: #1e1a16;
+            flex: 1 1 100%;
+            min-width: 60px;
+            line-height: 1.3;
+        }
+        [data-theme="dark"] .exp-detail-header .exp-company {
+            color: #eae6e0;
+        }
+
+        .exp-detail-header .exp-position {
+            font-size: 10px;
+            font-weight: 500;
+            color: #555;
+            flex: 1 1 auto;
+            min-width: 40px;
+            line-height: 1.3;
+        }
+        [data-theme="dark"] .exp-detail-header .exp-position {
+            color: #ccc;
+        }
+
+        .exp-detail-header .exp-period {
+            font-size: 9px;
+            color: #999;
+            flex-shrink: 0;
+            background: rgba(0, 0, 0, 0.03);
+            padding: 0 10px;
+            border-radius: 12px;
+            line-height: 1.6;
+            border: 1px solid rgba(0, 0, 0, 0.04);
+        }
+        [data-theme="dark"] .exp-detail-header .exp-period {
+            color: #aaa;
+            background: rgba(255, 255, 255, 0.03);
+            border-color: rgba(255, 255, 255, 0.04);
+        }
+
+        .exp-detail-header .exp-toggle {
+            color: #bbb;
+            font-size: 10px;
+            transition: transform 0.25s;
+            flex-shrink: 0;
+            cursor: pointer;
+            margin-left: auto;
+            padding: 0 4px;
+        }
+        [data-theme="dark"] .exp-detail-header .exp-toggle {
+            color: #888;
+        }
+        .exp-detail-header .exp-toggle.open {
+            transform: rotate(180deg);
+        }
+
+        .exp-detail-body {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease, padding 0.3s ease;
+            padding: 0 4px;
+        }
+        .exp-detail-body.open {
+            max-height: 300px;
+            padding: 4px 4px 2px 4px;
+        }
+        .exp-detail-body ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .exp-detail-body ul li {
+            font-size: 9px;
+            color: #666;
+            padding: 2px 0 2px 14px;
+            position: relative;
+            line-height: 1.4;
+            display: flex;
+            align-items: flex-start;
+            gap: 4px;
+        }
+        [data-theme="dark"] .exp-detail-body ul li {
+            color: #bbb;
+        }
+        .exp-detail-body ul li::before {
+            content: '•';
+            position: absolute;
+            left: 0;
+            top: 2px;
+            color: #c9a84c;
+            font-size: 10px;
+        }
+        .exp-empty-details {
+            font-size: 9px;
+            color: #bbb;
+            font-style: italic;
+        }
+
+        /* Experience card in profile — no scroll, expands */
+        #experienceCard {
+            flex-shrink: 0 !important;
+            display: block !important;
+            overflow: visible !important;
+            min-height: auto !important;
+        }
+        #expScrollContainer {
+            overflow: visible !important;
+            min-height: auto !important;
+            padding-right: 0 !important;
+            max-height: none !important;
+        }
+        .exp-container {
+            overflow: visible !important;
+        }
+
+        /* ============================================================
+           KEUANGAN
+           ============================================================ */
+        .finance-body {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            overflow: hidden;
+        }
+        .balance-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            padding-bottom: 4px;
+            border-bottom: 1px dashed rgba(0, 0, 0, 0.06);
+            flex-shrink: 0;
+        }
+        [data-theme="dark"] .balance-row {
+            border-bottom-color: rgba(255, 255, 255, 0.06);
+        }
+        .balance-amount {
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+            color: #1e1a16;
+        }
+        [data-theme="dark"] .balance-amount {
+            color: #eae6e0;
+        }
+        .balance-amount span {
+            font-size: 11px;
+            font-weight: 600;
+            color: #c9a84c;
+            margin-right: 2px;
+        }
+        .balance-label {
+            font-size: 9px;
+            color: #aaa;
+            font-weight: 500;
+        }
+        [data-theme="dark"] .balance-label {
+            color: #999;
+        }
+        .balance-meta {
+            font-size: 9px;
+            color: #aaa;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
+        [data-theme="dark"] .balance-meta {
+            color: #999;
+        }
+
+        .add-daily-form {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+            padding: 4px 0 5px 0;
+            border-bottom: 1px dashed rgba(0, 0, 0, 0.06);
+            flex-shrink: 0;
+        }
+        [data-theme="dark"] .add-daily-form {
+            border-bottom-color: rgba(255, 255, 255, 0.06);
+        }
+        .add-daily-form input {
+            padding: 2px 8px;
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            border-radius: 16px;
+            font-size: 9px;
+            font-family: inherit;
+            background: rgba(255, 255, 255, 0.4);
+            color: #1e1a16;
+            transition: all 0.25s;
+        }
+        [data-theme="dark"] .add-daily-form input {
+            background: rgba(255, 255, 255, 0.04);
+            border-color: rgba(255, 255, 255, 0.06);
+            color: #eae6e0;
+        }
+        .add-daily-form input::placeholder {
+            color: #bbb;
+        }
+        [data-theme="dark"] .add-daily-form input::placeholder {
+            color: #888;
+        }
+        .add-daily-form input:focus {
+            outline: none;
+            border-color: #c9a84c;
+            box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.06);
+        }
+        .add-daily-form input.date-input {
+            min-width: 85px;
+        }
+        .add-daily-form input.amount-input {
+            min-width: 65px;
+        }
+        .add-daily-form input.note-input {
+            flex: 1;
+            min-width: 55px;
+        }
+        .add-daily-form button {
+            background: #c9a84c;
+            color: #fff;
+            border: none;
+            padding: 2px 14px;
+            border-radius: 16px;
+            font-size: 9px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            transition: all 0.25s;
+            font-family: inherit;
+        }
+        .add-daily-form button:hover {
+            background: #b8973a;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(201, 168, 76, 0.20);
+        }
+
+        .daily-list-wrapper {
+            flex: 1;
+            overflow-y: auto;
+            padding-right: 3px;
+            margin-top: 4px;
+            min-height: 0;
+        }
+        .daily-list {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+        .daily-item {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            padding: 3px 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            transition: all 0.2s;
+            font-size: 10px;
+        }
+        [data-theme="dark"] .daily-item {
+            background: rgba(255, 255, 255, 0.02);
+            border-color: rgba(255, 255, 255, 0.04);
+        }
+        .daily-item:hover {
+            border-color: rgba(201, 168, 76, 0.15);
+        }
+        .daily-item .date {
+            font-size: 9px;
+            font-weight: 500;
+            color: #888;
+            min-width: 55px;
+        }
+        [data-theme="dark"] .daily-item .date {
+            color: #aaa;
+        }
+        .daily-item .note {
+            flex: 1;
+            font-size: 9px;
+            color: #555;
+            min-width: 35px;
+        }
+        [data-theme="dark"] .daily-item .note {
+            color: #ccc;
+        }
+        .daily-item .amount {
+            font-weight: 600;
+            font-size: 10px;
+            min-width: 45px;
+            text-align: right;
+            color: #1e1a16;
+        }
+        [data-theme="dark"] .daily-item .amount {
+            color: #eae6e0;
+        }
+        .daily-item .amount.positive {
+            color: #6b8f5e;
+        }
+        [data-theme="dark"] .daily-item .amount.positive {
+            color: #7dab6e;
+        }
+        .daily-item .item-actions {
+            display: flex;
+            gap: 3px;
+            margin-left: auto;
+        }
+        .daily-item .item-actions button {
+            background: none;
+            border: none;
+            color: #bbb;
+            cursor: pointer;
+            padding: 1px 3px;
+            border-radius: 4px;
+            transition: all 0.2s;
+            font-size: 9px;
+        }
+        [data-theme="dark"] .daily-item .item-actions button {
+            color: #888;
+        }
+        .daily-item .item-actions .edit-daily:hover {
+            color: #c9a84c;
+        }
+        .daily-item .item-actions .delete-daily:hover {
+            color: #c97a47;
+        }
+        .daily-item .item-actions .save-daily {
+            background: #c9a84c;
+            color: #fff;
+            padding: 1px 10px;
+            border-radius: 14px;
+            font-size: 8px;
+            font-weight: 500;
+        }
+        .daily-item .item-actions .save-daily:hover {
+            background: #b8973a;
+        }
+        .daily-item .item-actions .cancel-daily {
+            background: rgba(0, 0, 0, 0.04);
+            color: #888;
+            padding: 1px 10px;
+            border-radius: 14px;
+            font-size: 8px;
+            font-weight: 500;
+        }
+        [data-theme="dark"] .daily-item .item-actions .cancel-daily {
+            background: rgba(255, 255, 255, 0.04);
+            color: #aaa;
+        }
+        .daily-item .edit-field {
+            padding: 1px 6px;
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            border-radius: 4px;
+            font-size: 9px;
+            font-family: inherit;
+            background: rgba(255, 255, 255, 0.4);
+            color: #1e1a16;
+            min-width: 35px;
+            transition: border-color 0.2s;
+        }
+        [data-theme="dark"] .daily-item .edit-field {
+            background: rgba(255, 255, 255, 0.04);
+            border-color: rgba(255, 255, 255, 0.06);
+            color: #eae6e0;
+        }
+        .daily-item .edit-field::placeholder {
+            color: #bbb;
+        }
+        [data-theme="dark"] .daily-item .edit-field::placeholder {
+            color: #888;
+        }
+        .daily-item .edit-field:focus {
+            outline: none;
+            border-color: #c9a84c;
+        }
+        .daily-item .edit-field.date-field {
+            min-width: 65px;
+        }
+        .daily-item .edit-field.amount-field {
+            min-width: 45px;
+        }
+        .daily-item .edit-field.note-field {
+            flex: 1;
+            min-width: 45px;
+        }
+        .empty-daily {
+            color: #bbb;
+            font-size: 9px;
+            font-style: italic;
+            padding: 3px 0;
+        }
+        [data-theme="dark"] .empty-daily {
+            color: #888;
+        }
+
+        /* ============================================================
+           PLAN / SHORTCOMING / HABIT
+           ============================================================ */
+        .plan-section {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            overflow: hidden;
+        }
+        .plan-add-form {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+            flex-shrink: 0;
+            margin-bottom: 4px;
+        }
+        .plan-add-form input {
+            flex: 1;
+            min-width: 55px;
+            padding: 2px 10px;
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            border-radius: 16px;
+            font-size: 9px;
+            font-family: inherit;
+            background: rgba(255, 255, 255, 0.4);
+            color: #1e1a16;
+            transition: all 0.25s;
+        }
+        [data-theme="dark"] .plan-add-form input {
+            background: rgba(255, 255, 255, 0.04);
+            border-color: rgba(255, 255, 255, 0.06);
+            color: #eae6e0;
+        }
+        .plan-add-form input::placeholder {
+            color: #bbb;
+        }
+        [data-theme="dark"] .plan-add-form input::placeholder {
+            color: #888;
+        }
+        .plan-add-form input:focus {
+            outline: none;
+            border-color: #c9a84c;
+            box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.06);
+        }
+        .plan-add-form button {
+            background: #c9a84c;
+            color: #fff;
+            border: none;
+            padding: 2px 12px;
+            border-radius: 16px;
+            font-size: 9px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            transition: all 0.25s;
+            font-family: inherit;
+        }
+        .plan-add-form button:hover {
+            background: #b8973a;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(201, 168, 76, 0.20);
+        }
+
+        .plan-items-scroll {
+            flex: 1;
+            overflow-y: auto;
+            padding-right: 3px;
+            margin-bottom: 3px;
+            min-height: 0;
+        }
+        .plan-items {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            min-height: 16px;
+        }
+        .plan-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 2px 8px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 6px;
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            transition: all 0.2s;
+            animation: tagIn 0.3s ease forwards;
+            opacity: 0;
+            transform: translateX(-4px);
+            font-size: 10px;
+        }
+        [data-theme="dark"] .plan-item {
+            background: rgba(255, 255, 255, 0.02);
+            border-color: rgba(255, 255, 255, 0.04);
+        }
+        .plan-item:hover {
+            border-color: rgba(201, 168, 76, 0.12);
+        }
+        .plan-item .plan-text {
+            flex: 1;
+            font-size: 10px;
+            color: #444;
+        }
+        [data-theme="dark"] .plan-item .plan-text {
+            color: #d5d0ca;
+        }
+        .plan-item .plan-text.done {
+            text-decoration: line-through;
+            color: #bbb;
+        }
+        [data-theme="dark"] .plan-item .plan-text.done {
+            color: #777;
+        }
+        .plan-item .plan-check {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 2px solid rgba(0, 0, 0, 0.10);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.25s;
+            flex-shrink: 0;
+            background: rgba(255, 255, 255, 0.3);
+            color: transparent;
+            font-size: 8px;
+        }
+        [data-theme="dark"] .plan-item .plan-check {
+            border-color: rgba(255, 255, 255, 0.10);
+            background: rgba(255, 255, 255, 0.04);
+        }
+        .plan-item .plan-check:hover {
+            border-color: #c9a84c;
+        }
+        .plan-item .plan-check.checked {
+            background: #6b8f5e;
+            border-color: #6b8f5e;
+            color: #fff;
+        }
+        .plan-item .plan-delete {
+            background: none;
+            border: none;
+            color: #bbb;
+            cursor: pointer;
+            font-size: 9px;
+            padding: 1px;
+            border-radius: 50%;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        [data-theme="dark"] .plan-item .plan-delete {
+            color: #888;
+        }
+        .plan-item .plan-delete:hover {
+            color: #c97a47;
+        }
+
+        .plan-section-title {
+            font-size: 9px;
+            font-weight: 600;
+            color: #888;
+            margin-top: 2px;
+            margin-bottom: 2px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            flex-shrink: 0;
+        }
+        [data-theme="dark"] .plan-section-title {
+            color: #aaa;
+        }
+        .plan-section-title i {
+            color: #c9a84c;
+            font-size: 9px;
+        }
+
+        .plan-history-wrapper {
+            max-height: 42px;
+            overflow-y: auto;
+            padding-right: 3px;
+            border-radius: 6px;
+            background: rgba(0, 0, 0, 0.02);
+            padding: 3px 6px;
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            flex-shrink: 0;
+        }
+        [data-theme="dark"] .plan-history-wrapper {
+            background: rgba(255, 255, 255, 0.02);
+            border-color: rgba(255, 255, 255, 0.04);
+        }
+        .plan-history-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 1px 3px;
+            font-size: 9px;
+            color: #888;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+        }
+        [data-theme="dark"] .plan-history-item {
+            border-bottom-color: rgba(255, 255, 255, 0.03);
+            color: #aaa;
+        }
+        .plan-history-item:last-child {
+            border-bottom: none;
+        }
+        .plan-history-item .h-icon {
+            color: #c9a84c;
+            font-size: 8px;
+        }
+        .plan-history-item .h-text {
+            flex: 1;
+            color: #555;
+            font-size: 9px;
+        }
+        [data-theme="dark"] .plan-history-item .h-text {
+            color: #ccc;
+        }
+        .plan-history-item .h-date {
+            font-size: 8px;
+            color: #bbb;
+        }
+        [data-theme="dark"] .plan-history-item .h-date {
+            color: #888;
+        }
+        .empty-plan {
+            color: #bbb;
+            font-size: 9px;
+            font-style: italic;
+            padding: 2px 0;
+        }
+        [data-theme="dark"] .empty-plan {
+            color: #888;
+        }
+
+        .badge-count {
+            display: inline-block;
+            background: #c9a84c;
+            color: #fff;
+            font-size: 8px;
+            font-weight: 600;
+            padding: 0 6px;
+            border-radius: 10px;
+            line-height: 14px;
+        }
+        .badge-count.done {
+            background: #6b8f5e;
+        }
+        [data-theme="dark"] .badge-count {
+            color: #fff;
+        }
+
+        /* ============================================================
+           STAR BURST
+           ============================================================ */
+        .habit-star-burst {
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+        .burst-star {
+            position: absolute;
+            font-size: 20px;
+            color: #ffd700;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+            animation: burstFly 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+            opacity: 1;
+        }
+        @keyframes burstFly {
+            0% {
+                transform: translate(0, 0) scale(0.5) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(var(--tx), var(--ty)) scale(0) rotate(720deg);
+                opacity: 0;
+            }
+        }
+        .habit-reward-text {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            font-size: 28px;
+            font-weight: 700;
+            color: #ffd700;
+            text-shadow: 0 0 40px rgba(255, 215, 0, 0.35);
+            z-index: 10000;
+            pointer-events: none;
+            animation: rewardPop 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        }
+        @keyframes rewardPop {
+            0% {
+                transform: translate(-50%, -50%) scale(0) rotate(-20deg);
+                opacity: 0;
+            }
+            30% {
+                transform: translate(-50%, -50%) scale(1.2) rotate(5deg);
+                opacity: 1;
+            }
+            60% {
+                transform: translate(-50%, -50%) scale(1) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(0.8) rotate(0deg);
+                opacity: 0;
+            }
+        }
+
+        /* ============================================================
+           SETTINGS MODAL
+           ============================================================ */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.35);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            padding: 16px;
+        }
+        .modal-overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-box {
+            background: #fff;
+            border-radius: 14px;
+            padding: 16px 20px;
+            max-width: 420px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
+            transform: scale(0.92) translateY(12px);
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(0, 0, 0, 0.04);
+        }
+        [data-theme="dark"] .modal-box {
+            background: #1e1a16;
+            border-color: rgba(255, 255, 255, 0.04);
+        }
+        .modal-overlay.open .modal-box {
+            transform: scale(1) translateY(0);
+        }
+        .modal-box h3 {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 2px;
+            color: #1e1a16;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        [data-theme="dark"] .modal-box h3 {
+            color: #eae6e0;
+        }
+        .modal-box h3 i {
+            color: #c9a84c;
+        }
+        .modal-box .modal-subtitle {
+            font-size: 11px;
+            color: #888;
+            margin-bottom: 12px;
+        }
+        [data-theme="dark"] .modal-box .modal-subtitle {
+            color: #999;
+        }
+
+        .modal-box .form-group {
+            margin-bottom: 8px;
+        }
+        .modal-box .form-group label {
+            display: block;
+            font-size: 10px;
+            font-weight: 500;
+            color: #888;
+            margin-bottom: 2px;
+        }
+        [data-theme="dark"] .modal-box .form-group label {
+            color: #aaa;
+        }
+        .modal-box .form-group label i {
+            margin-right: 4px;
+            color: #c9a84c;
+            width: 14px;
+        }
+        .modal-box .form-group .modal-input {
+            width: 100%;
+            padding: 5px 10px;
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            border-radius: 8px;
+            font-size: 11px;
+            font-family: inherit;
+            background: rgba(255, 255, 255, 0.6);
+            color: #1e1a16;
+            transition: all 0.25s;
+        }
+        [data-theme="dark"] .modal-box .form-group .modal-input {
+            background: rgba(255, 255, 255, 0.04);
+            border-color: rgba(255, 255, 255, 0.06);
+            color: #eae6e0;
+        }
+        .modal-box .form-group .modal-input::placeholder {
+            color: #bbb;
+        }
+        [data-theme="dark"] .modal-box .form-group .modal-input::placeholder {
+            color: #888;
+        }
+        .modal-box .form-group .modal-input:focus {
+            outline: none;
+            border-color: #c9a84c;
+            box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.08);
+        }
+
+        .modal-box .form-group textarea.modal-input.bio-textarea {
+            resize: vertical;
+            min-height: 80px;
+            width: 100%;
+            font-size: 11px;
+            line-height: 1.5;
+            padding: 6px 10px;
+        }
+        .modal-box .form-group .char-count {
+            font-size: 9px;
+            color: #aaa;
+            text-align: right;
+            margin-top: 2px;
+        }
+        [data-theme="dark"] .modal-box .form-group .char-count {
+            color: #888;
+        }
+        .modal-box .form-group .char-count.warning {
+            color: #e53935;
+        }
+
+        .modal-box .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+        @media (max-width: 440px) {
+            .modal-box .form-row {
+                grid-template-columns: 1fr;
+                gap: 4px;
+            }
+        }
+
+        .modal-box .divider {
+            border: none;
+            border-top: 1px solid rgba(0, 0, 0, 0.06);
+            margin: 6px 0 8px 0;
+        }
+        [data-theme="dark"] .modal-box .divider {
+            border-top-color: rgba(255, 255, 255, 0.06);
+        }
+
+        /* --- Settings: Tags (skills, training, links) --- */
+        .settings-tag-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-bottom: 4px;
+            min-height: 20px;
+        }
+        .settings-tag-list .tag-item {
+            background: rgba(0, 0, 0, 0.04);
+            padding: 1px 8px 1px 10px;
+            border-radius: 14px;
+            font-size: 9px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            transition: all 0.2s;
+            animation: tagIn 0.3s ease forwards;
+        }
+        [data-theme="dark"] .settings-tag-list .tag-item {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(255, 255, 255, 0.04);
+            color: #ddd;
+        }
+        .settings-tag-list .tag-item .tag-remove {
+            background: none;
+            border: none;
+            color: #bbb;
+            cursor: pointer;
+            font-size: 8px;
+            padding: 0 2px;
+            border-radius: 50%;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+        }
+        .settings-tag-list .tag-item .tag-remove:hover {
+            color: #c97a47;
+        }
+        .settings-tag-list .empty-tag {
+            color: #bbb;
+            font-size: 9px;
+            font-style: italic;
+        }
+        [data-theme="dark"] .settings-tag-list .empty-tag {
+            color: #888;
+        }
+
+        .settings-add-row {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+            margin-top: 2px;
+        }
+        .settings-add-row input {
+            flex: 1;
+            min-width: 50px;
+            padding: 2px 8px;
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            border-radius: 14px;
+            font-size: 9px;
+            font-family: inherit;
+            background: rgba(255, 255, 255, 0.4);
+            color: #1e1a16;
+            transition: all 0.25s;
+        }
+        [data-theme="dark"] .settings-add-row input {
+            background: rgba(255, 255, 255, 0.04);
+            border-color: rgba(255, 255, 255, 0.06);
+            color: #eae6e0;
+        }
+        .settings-add-row input::placeholder {
+            color: #bbb;
+        }
+        [data-theme="dark"] .settings-add-row input::placeholder {
+            color: #888;
+        }
+        .settings-add-row input:focus {
+            outline: none;
+            border-color: #c9a84c;
+        }
+        .settings-add-row .add-btn {
+            background: #c9a84c;
+            color: #fff;
+            border: none;
+            padding: 2px 12px;
+            border-radius: 14px;
+            font-size: 9px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.25s;
+            font-family: inherit;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
+        .settings-add-row .add-btn:hover {
+            background: #b8973a;
+        }
+
+        /* --- Experience in settings --- */
+        .settings-exp-item {
+            background: rgba(0, 0, 0, 0.02);
+            border-radius: 8px;
+            padding: 8px 10px;
+            margin-bottom: 6px;
+            border: 1px solid rgba(0, 0, 0, 0.04);
+        }
+        [data-theme="dark"] .settings-exp-item {
+            background: rgba(255, 255, 255, 0.02);
+            border-color: rgba(255, 255, 255, 0.04);
+        }
+
+        .settings-exp-item .exp-fields-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+            margin-bottom: 4px;
+        }
+        @media (max-width: 440px) {
+            .settings-exp-item .exp-fields-grid {
+                grid-template-columns: 1fr;
+                gap: 4px;
+            }
+        }
+
+        .settings-exp-item .exp-fields-grid .field-group label {
+            font-size: 8px;
+            color: #999;
+            display: block;
+            margin-bottom: 1px;
+        }
+        [data-theme="dark"] .settings-exp-item .exp-fields-grid .field-group label {
+            color: #888;
+        }
+        .settings-exp-item .exp-fields-grid .field-group input {
+            width: 100%;
+            padding: 3px 6px;
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            border-radius: 6px;
+            font-size: 10px;
+            font-family: inherit;
+            background: rgba(255, 255, 255, 0.4);
+            color: #1e1a16;
+            transition: all 0.25s;
+        }
+        [data-theme="dark"] .settings-exp-item .exp-fields-grid .field-group input {
+            background: rgba(255, 255, 255, 0.03);
+            border-color: rgba(255, 255, 255, 0.06);
+            color: #eae6e0;
+        }
+        .settings-exp-item .exp-fields-grid .field-group input::placeholder {
+            color: #bbb;
+        }
+        [data-theme="dark"] .settings-exp-item .exp-fields-grid .field-group input::placeholder {
+            color: #888;
+        }
+        .settings-exp-item .exp-fields-grid .field-group input:focus {
+            outline: none;
+            border-color: #c9a84c;
+        }
+
+        .settings-exp-item .exp-remove-row {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 2px;
+        }
+        .settings-exp-item .exp-remove-row .exp-remove {
+            background: none;
+            border: none;
+            color: #bbb;
+            cursor: pointer;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+        .settings-exp-item .exp-remove-row .exp-remove:hover {
+            color: #c97a47;
+            background: rgba(201, 122, 71, 0.05);
+        }
+
+        .settings-exp-item .exp-details-area {
+            margin-top: 4px;
+        }
+        .settings-exp-item .exp-details-area .exp-details-label {
+            font-size: 8px;
+            color: #999;
+            display: block;
+            margin-bottom: 1px;
+        }
+        [data-theme="dark"] .settings-exp-item .exp-details-area .exp-details-label {
+            color: #888;
+        }
+        .settings-exp-item .exp-details-area textarea {
+            width: 100%;
+            padding: 3px 6px;
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            border-radius: 6px;
+            font-size: 9px;
+            font-family: inherit;
+            background: rgba(255, 255, 255, 0.3);
+            color: #1e1a16;
+            resize: none;
+            /* no manual resize, auto-height instead */
+            min-height: 28px;
+            transition: border-color 0.25s;
+            overflow: hidden;
+            /* no scroll */
+            line-height: 1.5;
+        }
+        [data-theme="dark"] .settings-exp-item .exp-details-area textarea {
+            background: rgba(255, 255, 255, 0.03);
+            border-color: rgba(255, 255, 255, 0.06);
+            color: #eae6e0;
+        }
+        .settings-exp-item .exp-details-area textarea::placeholder {
+            color: #bbb;
+        }
+        [data-theme="dark"] .settings-exp-item .exp-details-area textarea::placeholder {
+            color: #888;
+        }
+        .settings-exp-item .exp-details-area textarea:focus {
+            outline: none;
+            border-color: #c9a84c;
+        }
+
+        .settings-add-exp-btn {
+            background: none;
+            border: 1px dashed rgba(201, 168, 76, 0.3);
+            border-radius: 8px;
+            padding: 3px 10px;
+            font-size: 9px;
+            color: #c9a84c;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: 2px;
+        }
+        .settings-add-exp-btn:hover {
+            background: rgba(201, 168, 76, 0.05);
+            border-color: #c9a84c;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 6px;
+            justify-content: flex-end;
+            margin-top: 12px;
+            padding-top: 8px;
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        [data-theme="dark"] .modal-actions {
+            border-top-color: rgba(255, 255, 255, 0.05);
+        }
+        .modal-actions .btn-modal {
+            padding: 4px 16px;
+            border-radius: 18px;
+            font-size: 11px;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            transition: all 0.25s;
+            font-family: inherit;
+        }
+        .modal-actions .btn-modal.primary {
+            background: #c9a84c;
+            color: #fff;
+        }
+        .modal-actions .btn-modal.primary:hover {
+            background: #b8973a;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(201, 168, 76, 0.25);
+        }
+        .modal-actions .btn-modal.cancel {
+            background: rgba(0, 0, 0, 0.04);
+            color: #888;
+        }
+        [data-theme="dark"] .modal-actions .btn-modal.cancel {
+            background: rgba(255, 255, 255, 0.04);
+            color: #aaa;
+        }
+        .modal-actions .btn-modal.cancel:hover {
+            background: rgba(0, 0, 0, 0.08);
+        }
+        [data-theme="dark"] .modal-actions .btn-modal.cancel:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        /* ============================================================
+           VIEW PROFILE MODAL — WhatsApp-style full screen photo viewer
+           ============================================================ */
+        .modal-overlay.view-profile-modal {
+            background: rgba(0, 0, 0, 0.92);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 0;
+            z-index: 1000;
+        }
+        .modal-overlay.view-profile-modal .modal-box {
+            background: transparent;
+            max-width: 100%;
+            max-height: 100%;
+            width: 100%;
+            height: 100%;
+            border-radius: 0;
+            padding: 0;
+            box-shadow: none;
+            border: none;
+            transform: scale(1) translateY(0);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        .modal-overlay.view-profile-modal .modal-box .view-avatar {
+            width: min(85vw, 85vh, 480px);
+            height: min(85vw, 85vh, 480px);
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.6);
+            display: block;
+            margin: 0 auto;
+            transition: all 0.3s;
+            background: #1a1a1a;
+        }
+        .modal-overlay.view-profile-modal .modal-box .view-name {
+            font-size: 20px;
+            font-weight: 600;
+            color: #fff;
+            margin-top: 16px;
+            text-align: center;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+        }
+        .modal-overlay.view-profile-modal .modal-box .view-bio {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+            margin-top: 4px;
+            text-align: center;
+            max-width: 90%;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+        .modal-overlay.view-profile-modal .modal-box .view-profile-info {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0 20px;
+            text-align: center;
+        }
+        .modal-overlay.view-profile-modal .modal-box .view-close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.08);
+            border: none;
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            color: #fff;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.25s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .modal-overlay.view-profile-modal .modal-box .view-close-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: scale(1.05);
+        }
+        .modal-overlay.view-profile-modal .modal-box .view-close-btn i {
+            font-size: 22px;
+        }
+
+        @media (max-width: 520px) {
+            .modal-overlay.view-profile-modal .modal-box .view-avatar {
+                width: min(80vw, 80vh);
+                height: min(80vw, 80vh);
+            }
+            .modal-overlay.view-profile-modal .modal-box .view-name {
+                font-size: 18px;
+            }
+            .modal-overlay.view-profile-modal .modal-box .view-bio {
+                font-size: 13px;
+            }
+            .modal-overlay.view-profile-modal .modal-box .view-close-btn {
+                top: 14px;
+                right: 14px;
+                width: 38px;
+                height: 38px;
+                font-size: 16px;
+            }
+            .modal-overlay.view-profile-modal .modal-box .view-close-btn i {
+                font-size: 18px;
+            }
+        }
+        @media (max-width: 420px) {
+            .modal-overlay.view-profile-modal .modal-box .view-avatar {
+                width: min(70vw, 70vh);
+                height: min(70vw, 70vh);
+            }
+            .modal-overlay.view-profile-modal .modal-box .view-name {
+                font-size: 16px;
+                margin-top: 12px;
+            }
+            .modal-overlay.view-profile-modal .modal-box .view-bio {
+                font-size: 12px;
+            }
+            .modal-overlay.view-profile-modal .modal-box .view-close-btn {
+                top: 10px;
+                right: 10px;
+                width: 34px;
+                height: 34px;
+                font-size: 14px;
+            }
+            .modal-overlay.view-profile-modal .modal-box .view-close-btn i {
+                font-size: 16px;
+            }
+        }
+
+        /* ============================================================
+           RESPONSIVE
+           ============================================================ */
+        @media (max-width: 700px) {
+            .app-wrapper {
+                max-width: 100%;
+                max-height: 100vh;
+                border-radius: 16px;
+            }
+            .container {
+                padding: 6px 8px 10px;
+                border-radius: 16px;
+            }
+            #stars-container {
+                border-radius: 16px;
+            }
+            .profile-section {
+                flex-direction: row;
+                align-items: center;
+                gap: 12px;
+                flex-wrap: nowrap;
+            }
+            .photo-wrapper {
+                width: 60px;
+                height: 60px;
+            }
+            .photo-overlay .camera-icon {
+                font-size: 16px;
+                width: 28px;
+                height: 28px;
+                padding: 4px;
+            }
+            .profile-info {
+                gap: 2px;
+                padding-top: 0;
+            }
+            .profile-name {
+                font-size: 14px;
+            }
+            .profile-bio {
+                font-size: 10px;
+            }
+            .profile-detail-row {
+                font-size: 9px;
+            }
+            .profile-detail-row i {
+                font-size: 9px;
+                width: 14px;
+            }
+            .header {
+                flex-direction: row;
+                align-items: center;
+                gap: 4px;
+            }
+            .header-left h1 {
+                font-size: 13px;
+            }
+            .header-actions {
+                flex-wrap: wrap;
+            }
+            .datetime {
+                font-size: 8px;
+                padding: 1px 8px;
+            }
+            .online-status {
+                font-size: 7px;
+                padding: 1px 6px 1px 4px;
+            }
+            .online-status .online-dot {
+                width: 5px;
+                height: 5px;
+            }
+            .balance-row {
+                flex-direction: row;
+                align-items: center;
+                gap: 8px;
+                flex-wrap: wrap;
+            }
+            .balance-amount {
+                font-size: 16px;
+            }
+            .daily-item {
+                flex-direction: row;
+                align-items: center;
+                gap: 4px;
+                flex-wrap: wrap;
+                padding: 3px 8px;
+            }
+            .daily-item .date {
+                min-width: 45px;
+            }
+            .daily-item .amount {
+                text-align: left;
+                min-width: auto;
+            }
+            .daily-item .item-actions {
+                margin-left: auto;
+            }
+            .add-daily-form {
+                flex-direction: row;
+                flex-wrap: wrap;
+            }
+            .add-daily-form input {
+                flex: 1;
+                min-width: 45px;
+            }
+            .tab-nav .tab-btn {
+                font-size: 9px;
+                padding: 3px 6px;
+            }
+            .tab-nav .tab-btn i {
+                margin-right: 3px;
+            }
+            .sub-tab-nav .sub-tab-btn {
+                font-size: 8px;
+                padding: 2px 4px;
+            }
+            .plan-add-form {
+                flex-direction: row;
+                flex-wrap: wrap;
+            }
+            .plan-add-form input {
+                flex: 1;
+                min-width: 45px;
+            }
+            .motivation-text {
+                font-size: 10px;
+            }
+            .modal-box {
+                padding: 14px 12px;
+                max-width: 100%;
+                margin: 8px;
+            }
+            .card {
+                padding: 5px 8px;
+                margin-bottom: 4px;
+            }
+            .skills-scroll {
+                padding-right: 2px;
+            }
+            .skills-container {
+                gap: 4px;
+            }
+            .skill-tag {
+                font-size: 9px;
+                padding: 1px 10px 1px 12px;
+            }
+            .plan-history-wrapper {
+                max-height: 36px;
+            }
+            .exp-detail-body ul li {
+                font-size: 8px;
+            }
+            .exp-detail-header .exp-company {
+                font-size: 10px;
+            }
+            .exp-detail-header .exp-position {
+                font-size: 9px;
+            }
+            .exp-detail-header .exp-period {
+                font-size: 8px;
+            }
+            .settings-btn,
+            .theme-toggle {
+                width: 24px;
+                height: 24px;
+                font-size: 11px;
+            }
+            .modal-box .form-row {
+                grid-template-columns: 1fr;
+                gap: 4px;
+            }
+            .settings-exp-item .exp-fields-grid {
+                grid-template-columns: 1fr;
+                gap: 4px;
+            }
+            .edu-card .edu-row {
+                font-size: 9px;
+            }
+            .edu-card .edu-row i {
+                font-size: 9px;
+                width: 14px;
+            }
+        }
+
+        @media (max-width: 420px) {
+            .container {
+                padding: 4px 5px 8px;
+            }
+            .photo-wrapper {
+                width: 50px;
+                height: 50px;
+                padding: 1px;
+            }
+            .photo-overlay .camera-icon {
+                font-size: 13px;
+                width: 24px;
+                height: 24px;
+                padding: 3px;
+            }
+            .photo-wrapper::after {
+                font-size: 9px;
+                top: -2px;
+                right: -2px;
+            }
+            .profile-name {
+                font-size: 13px;
+            }
+            .profile-bio {
+                font-size: 9px;
+            }
+            .profile-detail-row {
+                font-size: 8px;
+            }
+            .profile-detail-row i {
+                font-size: 8px;
+                width: 12px;
+            }
+            .balance-amount {
+                font-size: 14px;
+            }
+            .header-left h1 {
+                font-size: 11px;
+            }
+            .settings-btn,
+            .theme-toggle {
+                width: 22px;
+                height: 22px;
+                font-size: 9px;
+            }
+            .datetime {
+                font-size: 7px;
+                padding: 1px 6px;
+            }
+            .online-status {
+                font-size: 6px;
+                padding: 1px 4px 1px 3px;
+            }
+            .online-status .online-dot {
+                width: 4px;
+                height: 4px;
+            }
+            .motivation-text {
+                font-size: 9px;
+            }
+            .tab-nav .tab-btn {
+                font-size: 8px;
+                padding: 2px 4px;
+            }
+            .sub-tab-nav .sub-tab-btn {
+                font-size: 7px;
+                padding: 2px 3px;
+            }
+            .card {
+                padding: 4px 6px;
+                margin-bottom: 3px;
+            }
+            .card-header h2 {
+                font-size: 10px;
+            }
+            .skill-tag {
+                font-size: 8px;
+                padding: 1px 8px 1px 10px;
+            }
+            .daily-item {
+                font-size: 8px;
+                padding: 2px 6px;
+            }
+            .daily-item .date {
+                font-size: 7px;
+                min-width: 35px;
+            }
+            .daily-item .amount {
+                font-size: 9px;
+            }
+            .plan-history-wrapper {
+                max-height: 30px;
+            }
+            .modal-box {
+                padding: 10px 8px;
+                margin: 4px;
+            }
+            .exp-detail-body ul li {
+                font-size: 7px;
+                padding: 1px 0 1px 10px;
+            }
+            .exp-detail-header .exp-company {
+                font-size: 9px;
+            }
+            .exp-detail-header .exp-position {
+                font-size: 8px;
+            }
+            .exp-detail-header .exp-period {
+                font-size: 7px;
+                padding: 0 6px;
+            }
+            .profile-detail-row .link-tag {
+                font-size: 7px;
+                padding: 0 6px 0 4px;
+            }
+            .settings-add-row input {
+                min-width: 35px;
+                font-size: 8px;
+            }
+            .settings-exp-item .exp-details-area textarea {
+                font-size: 8px;
+                min-height: 20px;
+            }
+            .modal-box .form-group .modal-input {
+                font-size: 10px;
+                padding: 4px 8px;
+            }
+            .modal-box .form-group textarea.modal-input.bio-textarea {
+                min-height: 60px;
+                font-size: 10px;
+            }
+            .settings-exp-item .exp-fields-grid .field-group input {
+                font-size: 9px;
+            }
+            .edu-card .edu-row {
+                font-size: 8px;
+            }
+            .edu-card .edu-row i {
+                font-size: 8px;
+                width: 12px;
+            }
+        }
+
+        .text-muted {
+            color: #aaa;
+            font-size: 9px;
+        }
+        [data-theme="dark"] .text-muted {
+            color: #888;
+        }
+        .mt-1 {
+            margin-top: 3px;
+        }
+        .fade-in {
+            animation: fadeIn 0.3s ease forwards;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(6px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .syncing-badge {
+            font-size: 7px;
+            color: #aaa;
+            animation: pulse 1.2s ease-in-out infinite;
+            display: inline-block;
+            margin-left: 4px;
+        }
+        [data-theme="dark"] .syncing-badge {
+            color: #888;
+        }
+        @keyframes pulse {
+            0%,
+            100% {
+                opacity: 0.3;
+            }
+            50% {
+                opacity: 1;
+            }
+        }
+
+        /* --- New combined location rows --- */
+        .location-combined .detail-value {
+            font-weight: 500;
+            color: #444;
+        }
+        [data-theme="dark"] .location-combined .detail-value {
+            color: #d5d0ca;
+        }
+        .location-combined .detail-value.empty {
+            color: #bbb;
+            font-style: italic;
+        }
+        [data-theme="dark"] .location-combined .detail-value.empty {
+            color: #777;
+        }
+        .location-combined .detail-value .sep {
+            color: #ccc;
+            margin: 0 2px;
+        }
+        [data-theme="dark"] .location-combined .detail-value .sep {
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ============================================================
+    APP WRAPPER
+    ============================================================ -->
+    <div class="app-wrapper">
+
+        <!-- STARS BACKGROUND -->
+        <div id="stars-container"></div>
+
+        <!-- MAIN CONTAINER -->
+        <div class="container" id="appContainer">
+
+            <!-- ============================================================
+            HEADER
+            ============================================================ -->
+            <div class="header">
+                <div class="header-left">
+                    <h1><i class="fas fa-star star-logo"></i> Profil Saya</h1>
+                </div>
+                <div class="header-actions">
+
+                    <!-- ONLINE STATUS -->
+                    <span class="online-status" id="onlineStatus">
+                        <span class="online-dot checking" id="onlineDot"></span>
+                        <span class="online-label" id="onlineLabel">Memeriksa</span>
+                    </span>
+
+                    <div class="datetime" id="datetimeDisplay">
+                        <i class="fas fa-clock clock-icon"></i>
+                        <span id="dateDisplay">01 September 2026</span>
+                        <span class="time-sep">/</span>
+                        <span id="timeDisplay">21:31:00</span>
+                    </div>
+
+                    <button class="settings-btn" id="settingsBtn" title="Pengaturan Profil">
+                        <i class="fas fa-sliders-h"></i>
+                    </button>
+
+                    <button class="theme-toggle" id="themeToggle" title="Tema">
+                        <i class="fas fa-moon"></i>
+                        <i class="fas fa-sun"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- ============================================================
+            MOTIVATION
+            ============================================================ -->
+            <div class="motivation-bar" id="motivationBar">
+                <span class="motivation-icon"><i class="fas fa-quote-right"></i></span>
+                <span class="motivation-text" id="motivationText">
+                    "Kesuksesan dimulai dari langkah kecil yang diambil hari ini."
+                    <span class="motivation-author">— Motivasi</span>
+                </span>
+                <div class="motivation-dots" id="motivationDots"></div>
+            </div>
+
+            <!-- ============================================================
+            TAB NAV
+            ============================================================ -->
+            <div class="tab-nav" id="mainTabNav">
+                <button class="tab-btn active" data-slide="0"><i class="fas fa-user"></i> Profil</button>
+                <button class="tab-btn" data-slide="1"><i class="fas fa-tasks"></i> Rencana</button>
+                <button class="tab-btn" data-slide="2"><i class="fas fa-wallet"></i> Keuangan</button>
+            </div>
+
+            <!-- ============================================================
+            SLIDES
+            ============================================================ -->
+            <div class="slides-wrapper" id="slidesWrapper">
+
+                <!-- ============================================================
+                SLIDE 0 — PROFIL (scrollable)
+                ============================================================ -->
+                <div class="slide active-slide" data-slide="0">
+
+                    <!-- PROFILE CARD -->
+                    <div class="card" id="profileCard" style="flex-shrink:0;">
+                        <div class="profile-section">
+                            <!-- Photo -->
+                            <div class="photo-wrapper" id="photoWrapper">
+                                <img id="profilePhoto" src="https://ui-avatars.com/api/?name=Muhamad+Maulana&background=c9a84c&color=fff&size=120" alt="Foto" />
+                                <div class="photo-overlay" id="photoOverlay">
+                                    <i class="fas fa-camera camera-icon"></i>
+                                </div>
+                            </div>
+                            <input type="file" id="fileInput" accept="image/*" />
+
+                            <!-- Info -->
+                            <div class="profile-info">
+                                <!-- Name -->
+                                <div class="profile-name" id="nameDisplay">
+                                    <span class="value" id="nameValue">Muhamad Maulana</span>
+                                </div>
+
+                                <!-- Bio -->
+                                <div class="profile-bio" id="bioDisplay">
+                                    <span class="value" id="bioValue">User yang terampil dalam bekerja secara individu maupun dalam tim untuk menyelesaikan tugas dengan target dan efisien.</span>
+                                </div>
+
+                                <!-- ===== LOKASI: KELURAHAN + KOTA (combined) ===== -->
+                                <div class="profile-detail-row location-combined" id="locationRow1">
+                                    <i class="fas fa-map-pin"></i>
+                                    <span class="detail-value" id="locationValue1">Kebon Jeruk, Jakarta Barat</span>
+                                </div>
+
+                                <!-- ===== LOKASI: PROVINSI + NEGARA (combined) ===== -->
+                                <div class="profile-detail-row location-combined" id="locationRow2">
+                                    <i class="fas fa-globe"></i>
+                                    <span class="detail-value" id="locationValue2">DKI Jakarta, Indonesia</span>
+                                </div>
+
+                                <!-- Phone -->
+                                <div class="profile-detail-row" id="phoneDisplay">
+                                    <i class="fas fa-phone"></i>
+                                    <a class="detail-value" id="phoneValue" href="tel:+6281234567890">+62 812 3456 7890</a>
+                                    <span style="font-size:7px;color:#ccc;margin-left:2px;">(Klik untuk telepon)</span>
+                                </div>
+
+                                <!-- Gmail -->
+                                <div class="profile-detail-row" id="gmailDisplay">
+                                    <i class="fas fa-envelope"></i>
+                                    <a class="detail-value" id="gmailValue" href="mailto:maulana@example.com">maulana@example.com</a>
+                                    <span style="font-size:7px;color:#ccc;margin-left:2px;">(Klik untuk kirim email)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- EDUCATION CARD -->
+                    <div class="card" id="educationCard" style="flex-shrink:0;">
+                        <div class="card-header">
+                            <h2><i class="fas fa-graduation-cap"></i> Pendidikan</h2>
+                        </div>
+                        <div id="educationDisplay">
+                            <!-- Rendered by JS -->
+                        </div>
+                    </div>
+
+                    <!-- TRAINING CARD -->
+                    <div class="card" id="trainingCard" style="flex-shrink:0;">
+                        <div class="card-header">
+                            <h2><i class="fas fa-certificate"></i> Pelatihan</h2>
+                        </div>
+                        <div class="skills-scroll">
+                            <div class="skills-container" id="trainingContainer"></div>
+                        </div>
+                    </div>
+
+                    <!-- SKILLS CARD -->
+                    <div class="card" id="skillsCard" style="flex-shrink:0;">
+                        <div class="card-header">
+                            <h2><i class="fas fa-code"></i> Keterampilan</h2>
+                        </div>
+                        <div class="skills-scroll">
+                            <div class="skills-container" id="skillsContainer"></div>
+                        </div>
+                    </div>
+
+                    <!-- LINKS CARD -->
+                    <div class="card" id="linksCard" style="flex-shrink:0;">
+                        <div class="card-header">
+                            <h2><i class="fas fa-link"></i> Tautan</h2>
+                        </div>
+                        <div class="profile-detail-row" id="linksDisplay" style="flex-wrap:wrap;gap:3px;">
+                            <span id="linksContainer"></span>
+                        </div>
+                    </div>
+
+                    <!-- EXPERIENCE CARD — NO SCROLL, expands naturally -->
+                    <div class="card" id="experienceCard" style="flex-shrink:0;">
+                        <div class="card-header" style="flex-shrink:0;">
+                            <h2><i class="fas fa-briefcase"></i> Pengalaman</h2>
+                        </div>
+                        <div id="expScrollContainer" style="overflow:visible !important; min-height:auto !important; padding-right:0 !important;">
+                            <div class="exp-container" id="expContainer"></div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- ============================================================
+                SLIDE 1 — RENCANA & HABIT
+                ============================================================ -->
+                <div class="slide" data-slide="1">
+
+                    <div class="sub-tab-nav" id="subTabNav">
+                        <button class="sub-tab-btn active" data-sub="0"><i class="fas fa-list-check"></i> Rencana</button>
+                        <button class="sub-tab-btn" data-sub="1"><i class="fas fa-exclamation-triangle"></i> Kekurangan</button>
+                        <button class="sub-tab-btn" data-sub="2"><i class="fas fa-heart"></i> Habit</button>
+                    </div>
+
+                    <div class="sub-slides-wrapper" id="subSlidesWrapper">
+
+                        <!-- RENCANA -->
+                        <div class="sub-slide active-sub" data-sub="0">
+                            <div class="card" style="height:100%; display:flex; flex-direction:column; margin-bottom:0; padding:8px 10px;">
+                                <div class="plan-section">
+                                    <div class="plan-add-form" id="planAddForm">
+                                        <input type="text" id="planInput" placeholder="Tambah rencana..." maxlength="60" />
+                                        <button id="planAddBtn"><i class="fas fa-plus"></i> Tambah</button>
+                                    </div>
+                                    <div class="plan-items-scroll" id="planItemsScroll">
+                                        <div class="plan-items" id="planItems"></div>
+                                    </div>
+                                    <div class="plan-section-title">
+                                        <i class="fas fa-history"></i> Riwayat
+                                        <span class="badge-count" id="planHistoryCount">0</span>
+                                    </div>
+                                    <div class="plan-history-wrapper" id="planHistoryWrapper">
+                                        <div id="planHistoryList"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- KEKURANGAN -->
+                        <div class="sub-slide" data-sub="1">
+                            <div class="card" style="height:100%; display:flex; flex-direction:column; margin-bottom:0; padding:8px 10px;">
+                                <div class="plan-section">
+                                    <div class="plan-add-form" id="shortcomingAddForm">
+                                        <input type="text" id="shortcomingInput" placeholder="Tambah kekurangan..." maxlength="60" />
+                                        <button id="shortcomingAddBtn"><i class="fas fa-plus"></i> Tambah</button>
+                                    </div>
+                                    <div class="plan-items-scroll" id="shortcomingItemsScroll">
+                                        <div class="plan-items" id="shortcomingItems"></div>
+                                    </div>
+                                    <div class="plan-section-title">
+                                        <i class="fas fa-history"></i> Riwayat
+                                        <span class="badge-count" id="shortcomingHistoryCount">0</span>
+                                    </div>
+                                    <div class="plan-history-wrapper" id="shortcomingHistoryWrapper">
+                                        <div id="shortcomingHistoryList"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- HABIT -->
+                        <div class="sub-slide" data-sub="2">
+                            <div class="card" style="height:100%; display:flex; flex-direction:column; margin-bottom:0; padding:8px 10px;">
+                                <div class="plan-section">
+                                    <div class="plan-add-form" id="habitAddForm">
+                                        <input type="text" id="habitInput" placeholder="Tambah habit..." maxlength="60" />
+                                        <button id="habitAddBtn"><i class="fas fa-plus"></i> Tambah</button>
+                                    </div>
+                                    <div class="plan-items-scroll" id="habitItemsScroll">
+                                        <div class="plan-items" id="habitItems"></div>
+                                    </div>
+                                    <div class="plan-section-title">
+                                        <i class="fas fa-history"></i> Riwayat
+                                        <span class="badge-count" id="habitHistoryCount">0</span>
+                                    </div>
+                                    <div class="plan-history-wrapper" id="habitHistoryWrapper">
+                                        <div id="habitHistoryList"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ============================================================
+                SLIDE 2 — KEUANGAN
+                ============================================================ -->
+                <div class="slide" data-slide="2">
+                    <div class="card" style="height:100%; display:flex; flex-direction:column; margin-bottom:0; padding:8px 10px;">
+                        <div class="finance-body">
+                            <div class="balance-row">
+                                <div>
+                                    <div class="balance-label">Saldo Saya</div>
+                                    <div class="balance-amount"><span>Rp</span> <span id="balanceTotal">0</span></div>
+                                </div>
+                                <div class="balance-meta">
+                                    <i class="fas fa-calendar-day"></i> Total dari <span id="incomeCount">0</span> transaksi
+                                </div>
+                            </div>
+
+                            <div class="add-daily-form" id="addDailyForm">
+                                <input type="date" id="dailyDate" class="date-input" />
+                                <input type="number" id="dailyAmount" class="amount-input" placeholder="Jumlah (Rp)" min="0" step="500" />
+                                <input type="text" id="dailyNote" class="note-input" placeholder="Keterangan..." maxlength="50" />
+                                <button id="addDailyBtn"><i class="fas fa-plus"></i> Tambah</button>
+                            </div>
+
+                            <div class="daily-list-wrapper" id="dailyListWrapper">
+                                <div class="daily-list" id="dailyList"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+    SETTINGS MODAL
+    ============================================================ -->
+    <div class="modal-overlay" id="settingsModal">
+        <div class="modal-box">
+            <h3><i class="fas fa-sliders-h"></i> Pengaturan Profil</h3>
+            <p class="modal-subtitle">Edit semua informasi profil Anda di sini.</p>
+
+            <!-- Photo -->
+            <div class="form-group">
+                <label><i class="fas fa-camera"></i> Foto Profil</label>
+                <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+                    <img id="settingsPhotoPreview" src="https://ui-avatars.com/api/?name=Muhamad+Maulana&background=c9a84c&color=fff&size=80" alt="Foto" style="width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid #c9a84c;" />
+                    <button class="btn-modal primary" id="settingsPhotoBtn" style="font-size:10px;padding:3px 12px;border-radius:14px;background:#c9a84c;color:#fff;border:none;cursor:pointer;font-family:inherit;">
+                        <i class="fas fa-upload"></i> Ganti
+                    </button>
+                    <button class="btn-modal cancel" id="settingsPhotoRemove" style="font-size:10px;padding:3px 12px;border-radius:14px;background:rgba(0,0,0,0.04);color:#888;border:none;cursor:pointer;font-family:inherit;">
+                        <i class="fas fa-trash-alt"></i> Hapus
+                    </button>
+                </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- Name -->
+            <div class="form-group">
+                <label><i class="fas fa-user"></i> Nama Lengkap</label>
+                <input type="text" class="modal-input" id="settingsName" placeholder="Nama lengkap..." />
+            </div>
+
+            <!-- Bio -->
+            <div class="form-group">
+                <label><i class="fas fa-quote-left"></i> Bio</label>
+                <textarea class="modal-input bio-textarea" id="settingsBio" rows="4" placeholder="Tulis bio singkat (maks. 500 karakter)..." maxlength="500"></textarea>
+                <div class="char-count" id="bioCharCount">0 / 500</div>
+            </div>
+
+            <!-- ===== EDUCATION ===== -->
+            <div class="form-group">
+                <label><i class="fas fa-graduation-cap"></i> Pendidikan</label>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">
+                    <input type="text" class="modal-input" id="settingsEduSchool" placeholder="Nama Sekolah / Univ / Institute..." style="grid-column:1/3;" />
+                    <input type="text" class="modal-input" id="settingsEduMajor" placeholder="Jurusan / Program Studi..." />
+                    <input type="text" class="modal-input" id="settingsEduGpa" placeholder="GPA (contoh: 3.64/4.00)" />
+                    <input type="text" class="modal-input" id="settingsEduOrg" placeholder="Organisasi (opsional)" />
+                </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- ===== TRAINING (with template placeholder) ===== -->
+            <div class="form-group">
+                <label><i class="fas fa-certificate"></i> Pelatihan</label>
+                <div class="settings-tag-list" id="settingsTrainingList"></div>
+                <div class="settings-add-row">
+                    <input type="text" id="settingsTrainingInput" placeholder="Contoh: Training Prakerja (2024): Microsoft Excel &amp; Data Entry" style="flex:1;min-width:50px;" />
+                    <button class="add-btn" id="settingsTrainingAdd"><i class="fas fa-plus"></i> Tambah</button>
+                </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- ===== LOKASI: Kelurahan, Kota, Provinsi, Negara (separate fields for editing) ===== -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label><i class="fas fa-map-pin"></i> Kelurahan</label>
+                    <input type="text" class="modal-input" id="settingsKelurahan" placeholder="Contoh: Kebon Jeruk" />
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-city"></i> Kota</label>
+                    <input type="text" class="modal-input" id="settingsCity" placeholder="Contoh: Jakarta Barat" />
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label><i class="fas fa-map-marked-alt"></i> Provinsi</label>
+                    <input type="text" class="modal-input" id="settingsProvinsi" placeholder="Contoh: DKI Jakarta" />
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-globe"></i> Negara</label>
+                    <input type="text" class="modal-input" id="settingsCountry" placeholder="Contoh: Indonesia" />
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label><i class="fas fa-phone"></i> No. Telepon / WA</label>
+                    <input type="text" class="modal-input" id="settingsPhone" placeholder="+62 812 3456 7890..." />
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-envelope"></i> Gmail</label>
+                    <input type="email" class="modal-input" id="settingsGmail" placeholder="email@example.com..." />
+                </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- Additional Links -->
+            <div class="form-group">
+                <label><i class="fas fa-link"></i> Tautan Tambahan</label>
+                <div class="settings-tag-list" id="settingsLinksList"></div>
+                <div class="settings-add-row">
+                    <input type="text" id="settingsLinkTitle" placeholder="Judul link..." style="flex:1;min-width:40px;" />
+                    <input type="url" id="settingsLinkUrl" placeholder="URL..." style="flex:2;min-width:60px;" />
+                    <button class="add-btn" id="settingsLinkAdd"><i class="fas fa-plus"></i> Tambah</button>
+                </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- Skills -->
+            <div class="form-group">
+                <label><i class="fas fa-code"></i> Keterampilan</label>
+                <div class="settings-tag-list" id="settingsSkillsList"></div>
+                <div class="settings-add-row">
+                    <input type="text" id="settingsSkillInput" placeholder="Contoh: Microsoft Excel" style="flex:1;min-width:50px;" />
+                    <button class="add-btn" id="settingsSkillAdd"><i class="fas fa-plus"></i> Tambah</button>
+                </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- Experience -->
+            <div class="form-group">
+                <label><i class="fas fa-briefcase"></i> Pengalaman</label>
+                <div id="settingsExpContainer"></div>
+                <button class="settings-add-exp-btn" id="settingsExpAdd"><i class="fas fa-plus"></i> Tambah Pengalaman</button>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="modal-actions">
+                <button class="btn-modal cancel" id="settingsCancel">Batal</button>
+                <button class="btn-modal primary" id="settingsSave"><i class="fas fa-save"></i> Simpan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+    MODAL: VIEW PROFILE — WhatsApp-style full screen photo viewer
+    ============================================================ -->
+    <div class="modal-overlay view-profile-modal" id="viewProfileModal">
+        <div class="modal-box">
+            <button class="view-close-btn" id="viewCloseBtn"><i class="fas fa-times"></i></button>
+            <img id="viewAvatar" class="view-avatar" src="https://ui-avatars.com/api/?name=Muhamad+Maulana&background=c9a84c&color=fff&size=140" alt="Foto" />
+            <div class="view-profile-info">
+                <div class="view-name" id="viewName">Muhamad Maulana</div>
+                <div class="view-bio" id="viewBio">User yang terampil dalam bekerja secara individu maupun dalam tim untuk menyelesaikan tugas dengan target dan efisien.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+    JAVASCRIPT — FIREBASE + APP LOGIC
+    ============================================================ -->
+    <script>
+        // ============================================================
+        //  1. FIREBASE CONFIG & INIT
+        // ============================================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyDpYFiOOOOqKjehDmwkYNjEEnquCuTQ9OY",
+            authDomain: "d-mu-project.firebaseapp.com",
+            databaseURL: "https://d-mu-project-default-rtdb.firebaseio.com",
+            projectId: "d-mu-project",
+            storageBucket: "d-mu-project.firebasestorage.app",
+            messagingSenderId: "538673398906",
+            appId: "1:538673398906:web:8a7db86ee24ca6e870a7c3",
+            measurementId: "G-XHTVMT584W"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        const DATA_PATH = '/profile/data';
+
+        // ============================================================
+        //  2. ONLINE / OFFLINE STATUS
+        // ============================================================
+        let isOnline = false;
+        let connectionChecked = false;
+
+        const onlineStatusEl = document.getElementById('onlineStatus');
+        const onlineDot = document.getElementById('onlineDot');
+        const onlineLabel = document.getElementById('onlineLabel');
+
+        function setOnlineStatus(status) {
+            isOnline = status;
+            connectionChecked = true;
+            onlineDot.className = 'online-dot ' + (status ? 'online' : 'offline');
+            onlineLabel.textContent = status ? 'Online' : 'Offline';
+            onlineStatusEl.className = 'online-status ' + (status ? 'online' : 'offline');
+        }
+
+        const connectedRef = database.ref('.info/connected');
+        connectedRef.on('value', (snap) => {
+            if (snap.val() === true) {
+                setOnlineStatus(true);
+                syncFromFirebase();
+            } else {
+                setOnlineStatus(false);
+            }
+        });
+
+        // ============================================================
+        //  3. DATA LAYER — Firebase + localStorage cache
+        // ============================================================
+        const STORAGE_KEY = 'profileAppDataV10';
+        let data = null;
+        let isLoading = true;
+
+        function getDefaultData() {
+            return {
+                photo: null,
+                name: 'Muhamad Maulana',
+                bio: 'User yang terampil dalam bekerja secara individu maupun dalam tim untuk menyelesaikan tugas dengan target dan efisien.',
+                education: {
+                    school: 'Institut Bisnis & Multimedia asmi',
+                    major: 'Sarjana Administrasi Bisnis',
+                    gpa: '3.64/4.00',
+                    organization: ''
+                },
+                training: ['Training Prakerja (2024): Microsoft Excel & Data Entry'],
+                kelurahan: 'Kebon Jeruk',
+                city: 'Jakarta Barat',
+                provinsi: 'DKI Jakarta',
+                country: 'Indonesia',
+                phone: '+62 812 3456 7890',
+                gmail: 'maulana@example.com',
+                additionalLinks: [
+                    { title: 'LinkedIn', url: 'https://linkedin.com/in/maulana' },
+                    { title: 'GitHub', url: 'https://github.com/maulana' }
+                ],
+                skills: ['Microsoft Excel', 'Microsoft Word', 'Fast Typing', 'Coding AI', 'Inventory',
+                    'Customer Service / Fastres', 'Monitoring & Rekap'
+                ],
+                experience: [{
+                    id: 'exp1',
+                    company: 'PT Sinyalku.net',
+                    position: 'Monitoring, Customer Service & Inventory',
+                    period: 'Des 2025 - Agu 2026',
+                    details: [
+                        'Praregist',
+                        'Full cek label, follow up label dan info report tiket yang akan dijadwalkan besok',
+                        'Monitor tiket (update done + penambahan) s.d jam shift',
+                        'Validasi tiket dan penyesuaian pada user (pastikan sudah selesaikan dan label dilepas)',
+                        'Isolir (verifikasi dan buat dan atau cek tiket dengan area yang akan dibagikan)',
+                        'Share rekap progres tiket selesai jam shift',
+                        'Info share tim backbone terkait jaringan odp full, redaman tinggi dan odp jauh dari jaringan terdekat',
+                        'Regist & allow pemasangan baru',
+                        'On cek laporan tim fastrespon',
+                        'Menyiapkan atau pengembalian barang teknisi',
+                        'Penyesuaian jadwal shift',
+                        'Pendataan kode sn router',
+                        'Share rekap tiket harian selesai full all teknisi',
+                        'Monitor barang (cek stok, input stok dan perapihan)',
+                        'Customer service fastrespon',
+                        'Perapihan kodepos pada data pelanggan'
+                    ]
+                }, {
+                    id: 'exp2',
+                    company: 'PT Jaminan Kredit Indonesia',
+                    position: 'Klaim & Subrogasi Intern',
+                    period: 'Sep 2023 - Sep 2025',
+                    details: [
+                        'Data Entry Task Force PT BAV 140.000+ terkait input nilai, vlookup, upload, approve, verifikasi & koreksi kelengkapan berkas',
+                        'Berhasil membuat formula excel status kelengkapan berkas dan notes menjadi akurat serta terorganisir',
+                        'Arsip berkas'
+                    ]
+                }],
+                dailyIncomes: [],
+                plans: [],
+                planHistory: [],
+                shortcomings: [],
+                shortcomingHistory: [],
+                habits: [],
+                habitHistory: [],
+            };
+        }
+
+        function todayStr() {
+            return new Date().toISOString().split('T')[0];
+        }
+
+        function formatDateShort(dateStr) {
+            if (!dateStr) return '-';
+            const parts = dateStr.split('-');
+            if (parts.length !== 3) return dateStr;
+            const bulan = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+            return `${parseInt(parts[2])} ${bulan[parseInt(parts[1])-1]} ${parts[0]}`;
+        }
+
+        function nowISO() {
+            return new Date().toISOString();
+        }
+
+        // --- Migration helpers ---
+        function migrateEducation(oldEdu) {
+            if (!oldEdu) return { school: '', major: '', gpa: '', organization: '' };
+            if (typeof oldEdu === 'object' && oldEdu.school !== undefined) return oldEdu;
+            if (typeof oldEdu === 'string') {
+                const parts = oldEdu.split('–');
+                const school = parts[0]?.trim() || oldEdu;
+                const rest = parts[1]?.trim() || '';
+                const gpaMatch = rest.match(/(\d+\.\d+\/\d+\.\d+)/);
+                const gpa = gpaMatch ? gpaMatch[1] : '';
+                const major = rest.replace(/\([^)]*\)/, '').replace(/\d+\.\d+\/\d+\.\d+/, '').trim() || '';
+                return { school, major, gpa, organization: '' };
+            }
+            return { school: '', major: '', gpa: '', organization: '' };
+        }
+
+        function migrateTraining(oldTraining) {
+            if (!oldTraining) return [];
+            if (Array.isArray(oldTraining)) return oldTraining;
+            if (typeof oldTraining === 'string') {
+                if (oldTraining.includes(',')) {
+                    return oldTraining.split(',').map(s => s.trim()).filter(s => s);
+                }
+                return [oldTraining];
+            }
+            return [];
+        }
+
+        function migrateExperience(oldExp) {
+            if (!oldExp || !Array.isArray(oldExp)) return [];
+            if (oldExp.length > 0 && oldExp[0].company !== undefined) return oldExp;
+            if (oldExp.length > 0 && typeof oldExp[0] === 'string') {
+                const hardcoded = {
+                    'PT Sinyalku.net – Monitoring, Customer Service & Inventory (Des 2025 - Agu 2026)': {
+                        company: 'PT Sinyalku.net',
+                        position: 'Monitoring, Customer Service & Inventory',
+                        period: 'Des 2025 - Agu 2026',
+                        details: [
+                            'Praregist',
+                            'Full cek label, follow up label dan info report tiket yang akan dijadwalkan besok',
+                            'Monitor tiket (update done + penambahan) s.d jam shift',
+                            'Validasi tiket dan penyesuaian pada user (pastikan sudah selesaikan dan label dilepas)',
+                            'Isolir (verifikasi dan buat dan atau cek tiket dengan area yang akan dibagikan)',
+                            'Share rekap progres tiket selesai jam shift',
+                            'Info share tim backbone terkait jaringan odp full, redaman tinggi dan odp jauh dari jaringan terdekat',
+                            'Regist & allow pemasangan baru',
+                            'On cek laporan tim fastrespon',
+                            'Menyiapkan atau pengembalian barang teknisi',
+                            'Penyesuaian jadwal shift',
+                            'Pendataan kode sn router',
+                            'Share rekap tiket harian selesai full all teknisi',
+                            'Monitor barang (cek stok, input stok dan perapihan)',
+                            'Customer service fastrespon',
+                            'Perapihan kodepos pada data pelanggan'
+                        ]
+                    },
+                    'PT Jaminan Kredit Indonesia – Klaim & Subrogasi Intern (Sep 2023 - Sep 2025)': {
+                        company: 'PT Jaminan Kredit Indonesia',
+                        position: 'Klaim & Subrogasi Intern',
+                        period: 'Sep 2023 - Sep 2025',
+                        details: [
+                            'Data Entry Task Force PT BAV 140.000+ terkait input nilai, vlookup, upload, approve, verifikasi & koreksi kelengkapan berkas',
+                            'Berhasil membuat formula excel status kelengkapan berkas dan notes menjadi akurat serta terorganisir',
+                            'Arsip berkas'
+                        ]
+                    }
+                };
+                return oldExp.map((title, idx) => {
+                    const parsed = hardcoded[title];
+                    if (parsed) {
+                        return { id: 'exp' + Date.now() + idx + Math.random().toString(36).substr(2, 3), ...parsed };
+                    }
+                    const parts = title.split('–');
+                    const company = parts[0]?.trim() || title;
+                    const rest = parts[1]?.trim() || '';
+                    const periodMatch = rest.match(/\(([^)]+)\)/);
+                    const period = periodMatch ? periodMatch[1] : '';
+                    const position = rest.replace(/\([^)]*\)/, '').trim() || '';
+                    return { id: 'exp' + Date.now() + idx + Math.random().toString(36).substr(2, 3), company, position,
+                        period, details: ['Detail tidak tersedia.'] };
+                });
+            }
+            if (oldExp.length > 0 && oldExp[0].title !== undefined) {
+                return oldExp.map((item, idx) => {
+                    const title = item.title || '';
+                    const parts = title.split('–');
+                    const company = parts[0]?.trim() || title;
+                    const rest = parts[1]?.trim() || '';
+                    const periodMatch = rest.match(/\(([^)]+)\)/);
+                    const period = periodMatch ? periodMatch[1] : '';
+                    const position = rest.replace(/\([^)]*\)/, '').trim() || '';
+                    return { id: item.id || 'exp' + Date.now() + idx + Math.random().toString(36).substr(2, 3),
+                        company, position, period, details: item.details || ['Detail tidak tersedia.'] };
+                });
+            }
+            return oldExp;
+        }
+
+        function migrateLinks(links) {
+            if (!links || !Array.isArray(links)) return [];
+            if (links.length > 0 && typeof links[0] === 'string') {
+                return links.map(url => ({ title: 'Link', url: url }));
+            }
+            return links;
+        }
+
+        function loadFromLocalStorage() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (raw) {
+                    const parsed = JSON.parse(raw);
+                    const defaults = getDefaultData();
+                    const merged = { ...defaults, ...parsed };
+                    merged.education = migrateEducation(merged.education);
+                    merged.training = migrateTraining(merged.training);
+                    merged.experience = migrateExperience(merged.experience);
+                    merged.additionalLinks = migrateLinks(merged.additionalLinks);
+                    if (!merged.kelurahan) merged.kelurahan = 'Kebon Jeruk';
+                    if (!merged.provinsi) merged.provinsi = 'DKI Jakarta';
+                    return merged;
+                }
+            } catch (_) {}
+            return null;
+        }
+
+        function saveToLocalStorage(d) {
+            try { localStorage.setItem(STORAGE_KEY, JSON.stringify(d)); } catch (_) {}
+        }
+
+        function loadFromFirebase() {
+            return new Promise((resolve, reject) => {
+                database.ref(DATA_PATH).once('value', (snap) => {
+                    const val = snap.val();
+                    if (val) {
+                        const defaults = getDefaultData();
+                        const merged = { ...defaults, ...val };
+                        merged.education = migrateEducation(merged.education);
+                        merged.training = migrateTraining(merged.training);
+                        merged.experience = migrateExperience(merged.experience);
+                        merged.additionalLinks = migrateLinks(merged.additionalLinks);
+                        if (!merged.kelurahan) merged.kelurahan = 'Kebon Jeruk';
+                        if (!merged.provinsi) merged.provinsi = 'DKI Jakarta';
+                        resolve(merged);
+                    } else { resolve(null); }
+                }, reject);
+            });
+        }
+
+        function saveToFirebase(d) {
+            return database.ref(DATA_PATH).set(d);
+        }
+
+        async function syncFromFirebase() {
+            if (!isOnline) return;
+            try {
+                const fbData = await loadFromFirebase();
+                if (fbData) {
+                    data = fbData;
+                    saveToLocalStorage(data);
+                    renderAll();
+                    console.log('✅ Data dimuat dari Firebase');
+                } else {
+                    const localData = loadFromLocalStorage();
+                    if (localData) {
+                        data = localData;
+                        await saveToFirebase(data);
+                        console.log('📤 Data lokal disinkronkan ke Firebase');
+                    } else {
+                        data = getDefaultData();
+                        saveToLocalStorage(data);
+                        await saveToFirebase(data);
+                        console.log('📦 Data default dibuat dan disimpan ke Firebase');
+                    }
+                    renderAll();
+                }
+            } catch (err) {
+                console.warn('⚠️ Gagal sync dari Firebase, pakai localStorage:', err);
+                const localData = loadFromLocalStorage();
+                if (localData) { data = localData; } else { data = getDefaultData();
+                    saveToLocalStorage(data); }
+                renderAll();
+            }
+            isLoading = false;
+        }
+
+        async function saveDataAndSync() {
+            if (!data) return;
+            saveToLocalStorage(data);
+            if (isOnline) {
+                try {
+                    await saveToFirebase(data);
+                    console.log('💾 Data disimpan ke Firebase');
+                } catch (err) {
+                    console.warn('⚠️ Gagal simpan ke Firebase:', err);
+                }
+            } else {
+                console.log('💾 Data disimpan ke localStorage (offline)');
+            }
+        }
+
+        // ============================================================
+        //  4. RENDER ALL
+        // ============================================================
+        function renderAll() {
+            if (!data) return;
+            renderPhoto();
+            renderName();
+            renderBio();
+            renderEducation();
+            renderTraining();
+            renderLocation(); // <-- NEW: combines kelurahan+kota & provinsi+negara
+            renderPhone();
+            renderGmail();
+            renderLinks();
+            renderSkills();
+            renderExperience();
+            renderDaily();
+            renderPlans();
+            renderShortcomings();
+            renderHabits();
+        }
+
+        // ============================================================
+        //  5. DOM REFS
+        // ============================================================
+        const $ = id => document.getElementById(id);
+        const container = $('appContainer');
+
+        const profilePhoto = $('profilePhoto');
+        const photoWrapper = $('photoWrapper');
+        const photoOverlay = $('photoOverlay');
+        const fileInput = $('fileInput');
+
+        const nameValue = $('nameValue');
+        const bioValue = $('bioValue');
+        const locationValue1 = $('locationValue1');
+        const locationValue2 = $('locationValue2');
+        const phoneValue = $('phoneValue');
+        const gmailValue = $('gmailValue');
+        const linksContainer = $('linksContainer');
+
+        const educationDisplay = $('educationDisplay');
+        const trainingContainer = $('trainingContainer');
+        const skillsContainer = $('skillsContainer');
+        const expContainer = $('expContainer');
+
+        const dailyList = $('dailyList');
+        const dailyDate = $('dailyDate');
+        const dailyAmount = $('dailyAmount');
+        const dailyNote = $('dailyNote');
+
+        const viewProfileModal = $('viewProfileModal');
+        const viewAvatar = $('viewAvatar');
+        const viewName = $('viewName');
+        const viewBio = $('viewBio');
+
+        const planInput = $('planInput');
+        const planItems = $('planItems');
+        const planHistoryList = $('planHistoryList');
+        const planHistoryCount = $('planHistoryCount');
+
+        const shortcomingInput = $('shortcomingInput');
+        const shortcomingItems = $('shortcomingItems');
+        const shortcomingHistoryList = $('shortcomingHistoryList');
+        const shortcomingHistoryCount = $('shortcomingHistoryCount');
+
+        const habitInput = $('habitInput');
+        const habitItems = $('habitItems');
+        const habitHistoryList = $('habitHistoryList');
+        const habitHistoryCount = $('habitHistoryCount');
+
+        const mainTabBtns = document.querySelectorAll('.tab-btn');
+        const slides = document.querySelectorAll('.slide');
+        const subTabBtns = document.querySelectorAll('.sub-tab-btn');
+        const subSlides = document.querySelectorAll('.sub-slide');
+
+        // Settings modal
+        const settingsModal = $('settingsModal');
+        const settingsName = $('settingsName');
+        const settingsBio = $('settingsBio');
+        const bioCharCount = $('bioCharCount');
+        const settingsKelurahan = $('settingsKelurahan');
+        const settingsCity = $('settingsCity');
+        const settingsProvinsi = $('settingsProvinsi');
+        const settingsCountry = $('settingsCountry');
+        const settingsPhone = $('settingsPhone');
+        const settingsGmail = $('settingsGmail');
+        const settingsPhotoPreview = $('settingsPhotoPreview');
+        const settingsSkillsList = $('settingsSkillsList');
+        const settingsSkillInput = $('settingsSkillInput');
+        const settingsTrainingList = $('settingsTrainingList');
+        const settingsTrainingInput = $('settingsTrainingInput');
+        const settingsLinksList = $('settingsLinksList');
+        const settingsLinkTitle = $('settingsLinkTitle');
+        const settingsLinkUrl = $('settingsLinkUrl');
+        const settingsExpContainer = $('settingsExpContainer');
+
+        const settingsEduSchool = $('settingsEduSchool');
+        const settingsEduMajor = $('settingsEduMajor');
+        const settingsEduGpa = $('settingsEduGpa');
+        const settingsEduOrg = $('settingsEduOrg');
+
+        // ============================================================
+        //  6. DATE & TIME
+        // ============================================================
+        function updateDateTime() {
+            const now = new Date();
+            const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+                'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+            ];
+            const day = String(now.getDate()).padStart(2, '0');
+            const month = months[now.getMonth()];
+            const year = now.getFullYear();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            $('dateDisplay').textContent = `${day} ${month} ${year}`;
+            $('timeDisplay').textContent = `${hours}:${minutes}:${seconds}`;
+        }
+        setInterval(updateDateTime, 1000);
+        updateDateTime();
+
+        // ============================================================
+        //  7. MOTIVATIONAL QUOTES
+        // ============================================================
+        const quotes = [
+            { text: "Kesuksesan dimulai dari langkah kecil yang diambil hari ini.", author: "Motivasi" },
+            { text: "Jangan takut gagal, takutlah untuk tidak mencoba sama sekali.", author: "Motivasi" },
+            { text: "Hari ini adalah kesempatan untuk menjadi versi terbaik dirimu.", author: "Motivasi" },
+            { text: "Kegigihan mengalahkan bakat ketika bakat tidak bekerja keras.", author: "Motivasi" },
+            { text: "Setiap pagi adalah awal baru untuk mengejar impian.", author: "Motivasi" },
+            { text: "Jangan bandingkan perjalananmu dengan orang lain.", author: "Motivasi" },
+            { text: "Kamu lebih kuat dari yang kamu pikirkan.", author: "Motivasi" },
+            { text: "Fokus pada progres, bukan pada kesempurnaan.", author: "Motivasi" },
+            { text: "Hidup adalah 10% apa yang terjadi padamu dan 90% bagaimana kamu meresponnya.", author: "Charles R. Swindoll" },
+            { text: "Percayalah pada proses, hasil akan mengikuti.", author: "Motivasi" }
+        ];
+
+        let quoteIndex = 0;
+        let quoteInterval = null;
+        const motivationText = $('motivationText');
+        const motivationDots = $('motivationDots');
+
+        function renderDots() {
+            motivationDots.innerHTML = '';
+            quotes.forEach((_, i) => {
+                const dot = document.createElement('span');
+                dot.className = i === quoteIndex ? 'active' : '';
+                dot.dataset.index = i;
+                dot.addEventListener('click', () => { showQuote(i);
+                    resetQuoteTimer(); });
+                motivationDots.appendChild(dot);
+            });
+        }
+
+        function showQuote(index) {
+            const q = quotes[index];
+            quoteIndex = index;
+            motivationText.classList.add('fade');
+            setTimeout(() => {
+                motivationText.innerHTML =
+                    `"${q.text}" <span class="motivation-author">— ${q.author}</span>`;
+                motivationText.classList.remove('fade');
+                document.querySelectorAll('.motivation-dots span').forEach((dot, i) => {
+                    dot.classList.toggle('active', i === quoteIndex);
+                });
+            }, 300);
+        }
+
+        function nextQuote() { showQuote((quoteIndex + 1) % quotes.length); }
+
+        function resetQuoteTimer() {
+            if (quoteInterval) { clearInterval(quoteInterval);
+                quoteInterval = null; }
+            quoteInterval = setInterval(nextQuote, 7000);
+        }
+        renderDots();
+        showQuote(0);
+        resetQuoteTimer();
+
+        // ============================================================
+        //  8. THEME
+        // ============================================================
+        let currentTheme = 'light';
+
+        function loadTheme() {
+            try {
+                const saved = localStorage.getItem('profileAppTheme');
+                if (saved === 'dark') {
+                    currentTheme = 'dark';
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                } else {
+                    currentTheme = 'light';
+                    document.documentElement.removeAttribute('data-theme');
+                }
+            } catch (_) { currentTheme = 'light'; }
+        }
+
+        function toggleTheme() {
+            if (currentTheme === 'light') {
+                currentTheme = 'dark';
+                document.documentElement.setAttribute('data-theme', 'dark');
+            } else {
+                currentTheme = 'light';
+                document.documentElement.removeAttribute('data-theme');
+            }
+            try { localStorage.setItem('profileAppTheme', currentTheme); } catch (_) {}
+        }
+        loadTheme();
+        $('themeToggle').addEventListener('click', toggleTheme);
+
+        // ============================================================
+        //  9. PHOTO
+        // ============================================================
+        photoOverlay.addEventListener('click', () => { if (!isLoading) fileInput.click(); });
+
+        fileInput.addEventListener('change', function(e) {
+            const file = this.files[0];
+            if (!file) return;
+            if (!file.type.startsWith('image/')) { alert('Pilih file gambar!');
+                this.value = ''; return; }
+            if (file.size > 2 * 1024 * 1024) { alert('Maksimal 2MB!');
+                this.value = ''; return; }
+            const reader = new FileReader();
+            reader.onload = function(ev) {
+                data.photo = ev.target.result;
+                saveDataAndSync();
+                renderPhoto();
+                settingsPhotoPreview.src = ev.target.result;
+                fileInput.value = '';
+            };
+            reader.onerror = function() { alert('Gagal membaca file.');
+                fileInput.value = ''; };
+            reader.readAsDataURL(file);
+        });
+
+        profilePhoto.addEventListener('click', () => openViewProfileModal());
+
+        // ============================================================
+        //  10. VIEW PROFILE MODAL
+        // ============================================================
+        function openViewProfileModal() {
+            const imgSrc = data.photo ||
+                `https://ui-avatars.com/api/?name=${encodeURIComponent(data.name || 'Muhamad Maulana')}&background=c9a84c&color=fff&size=140`;
+            viewAvatar.src = imgSrc;
+            viewName.textContent = data.name || 'Muhamad Maulana';
+            viewBio.textContent = data.bio ||
+                'User yang terampil dalam bekerja secara individu maupun dalam tim untuk menyelesaikan tugas dengan target dan efisien.';
+            viewProfileModal.classList.add('open');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeViewProfileModal() {
+            viewProfileModal.classList.remove('open');
+            document.body.style.overflow = '';
+        }
+        $('viewCloseBtn').addEventListener('click', closeViewProfileModal);
+        viewProfileModal.addEventListener('click', (e) => { if (e.target === viewProfileModal) closeViewProfileModal(); });
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeViewProfileModal(); });
+
+        // ============================================================
+        //  11. RENDER FUNCTIONS
+        // ============================================================
+        function renderPhoto() {
+            if (data.photo) { profilePhoto.src = data.photo; } else {
+                const name = data.name || 'Muhamad Maulana';
+                profilePhoto.src =
+                    `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=c9a84c&color=fff&size=120`;
+            }
+        }
+
+        function renderName() {
+            nameValue.textContent = data.name || 'Muhamad Maulana';
+            nameValue.className = 'value' + (data.name ? '' : ' empty');
+        }
+
+        function renderBio() {
+            bioValue.textContent = data.bio ||
+                'User yang terampil dalam bekerja secara individu maupun dalam tim untuk menyelesaikan tugas dengan target dan efisien.';
+            bioValue.className = 'value' + (data.bio ? '' : ' empty');
+        }
+
+        function renderEducation() {
+            const edu = data.education || { school: '', major: '', gpa: '', organization: '' };
+            let html = '';
+            const hasSchool = edu.school && edu.school.trim() !== '';
+            const hasMajor = edu.major && edu.major.trim() !== '';
+            const hasGpa = edu.gpa && edu.gpa.trim() !== '';
+            const hasOrg = edu.organization && edu.organization.trim() !== '';
+
+            if (!hasSchool && !hasMajor && !hasGpa && !hasOrg) {
+                html = '<div class="empty-skills" style="padding:2px 0;">Belum ada data pendidikan.</div>';
+            } else {
+                html = '<div class="edu-card">';
+                if (hasSchool) {
+                    html +=
+                        `<div class="edu-row"><i class="fas fa-university"></i><span class="edu-value">${edu.school}</span></div>`;
+                }
+                if (hasMajor) {
+                    html += `<div class="edu-row"><i class="fas fa-book-open"></i><span class="edu-value">${edu.major}</span></div>`;
+                }
+                if (hasGpa) {
+                    html +=
+                        `<div class="edu-row"><i class="fas fa-star"></i><span class="edu-value">GPA: ${edu.gpa}</span></div>`;
+                }
+                if (hasOrg) {
+                    html +=
+                        `<div class="edu-row"><i class="fas fa-users"></i><span class="edu-value">${edu.organization}</span></div>`;
+                }
+                html += '</div>';
+            }
+            educationDisplay.innerHTML = html;
+        }
+
+        function renderTraining() {
+            const items = data.training || [];
+            trainingContainer.innerHTML = '';
+            if (items.length === 0) {
+                trainingContainer.innerHTML = '<span class="empty-skills">Belum ada pelatihan.</span>';
+                return;
+            }
+            items.forEach((item) => {
+                const tag = document.createElement('span');
+                tag.className = 'skill-tag';
+                const textSpan = document.createElement('span');
+                textSpan.className = 'skill-text';
+                textSpan.textContent = item;
+                tag.appendChild(textSpan);
+                trainingContainer.appendChild(tag);
+            });
+        }
+
+        function renderSkills() {
+            const items = data.skills || [];
+            skillsContainer.innerHTML = '';
+            if (items.length === 0) {
+                skillsContainer.innerHTML = '<span class="empty-skills">Belum ada skill.</span>';
+                return;
+            }
+            items.forEach((item) => {
+                const tag = document.createElement('span');
+                tag.className = 'skill-tag';
+                const textSpan = document.createElement('span');
+                textSpan.className = 'skill-text';
+                textSpan.textContent = item;
+                tag.appendChild(textSpan);
+                skillsContainer.appendChild(tag);
+            });
+        }
+
+        // --- NEW: Combined location render ---
+        function renderLocation() {
+            const kelurahan = data.kelurahan ? data.kelurahan.trim() : '';
+            const city = data.city ? data.city.trim() : '';
+            const provinsi = data.provinsi ? data.provinsi.trim() : '';
+            const country = data.country ? data.country.trim() : '';
+
+            // Row 1: Kelurahan + Kota
+            let val1 = '';
+            if (kelurahan && city) {
+                val1 = `${kelurahan}, ${city}`;
+            } else if (kelurahan) {
+                val1 = kelurahan;
+            } else if (city) {
+                val1 = city;
+            } else {
+                val1 = 'Belum diisi';
+            }
+            locationValue1.textContent = val1;
+            locationValue1.className = 'detail-value' + ((kelurahan || city) ? '' : ' empty');
+
+            // Row 2: Provinsi + Negara
+            let val2 = '';
+            if (provinsi && country) {
+                val2 = `${provinsi}, ${country}`;
+            } else if (provinsi) {
+                val2 = provinsi;
+            } else if (country) {
+                val2 = country;
+            } else {
+                val2 = 'Belum diisi';
+            }
+            locationValue2.textContent = val2;
+            locationValue2.className = 'detail-value' + ((provinsi || country) ? '' : ' empty');
+        }
+
+        function renderPhone() {
+            const phone = data.phone || '+62 812 3456 7890';
+            phoneValue.textContent = phone;
+            phoneValue.href = 'tel:' + phone.replace(/\s/g, '');
+        }
+
+        function renderGmail() {
+            const gmail = data.gmail || 'maulana@example.com';
+            gmailValue.textContent = gmail;
+            gmailValue.href = 'mailto:' + gmail;
+        }
+
+        function renderLinks() {
+            const links = data.additionalLinks || [];
+            linksContainer.innerHTML = '';
+            if (links.length === 0) {
+                const span = document.createElement('span');
+                span.className = 'detail-value empty';
+                span.textContent = 'Tidak ada tautan tambahan.';
+                linksContainer.appendChild(span);
+                return;
+            }
+            links.forEach((link, index) => {
+                const a = document.createElement('a');
+                a.className = 'link-tag';
+                a.href = link.url;
+                a.target = '_blank';
+                a.rel = 'noopener noreferrer';
+                a.title = link.url;
+                a.innerHTML = `<i class="fas fa-external-link-alt"></i> ${link.title || 'Link ' + (index+1)}`;
+                a.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    try {
+                        window.open(link.url, '_blank');
+                    } catch (_) { window.location.href = link.url; }
+                });
+                linksContainer.appendChild(a);
+            });
+        }
+
+        function renderExperience() {
+            const items = data.experience || [];
+            expContainer.innerHTML = '';
+            if (items.length === 0) {
+                expContainer.innerHTML =
+                    '<div class="empty-exp" style="color:#bbb;font-size:10px;font-style:italic;padding:2px 0;">Belum ada pengalaman.</div>';
+                return;
+            }
+            items.forEach((exp, index) => {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'exp-detail-item';
+                wrapper.style.animation = 'tagIn 0.3s ease forwards';
+                wrapper.style.animationDelay = (index * 0.05) + 's';
+                wrapper.style.opacity = '0';
+
+                const header = document.createElement('div');
+                header.className = 'exp-detail-header';
+
+                const companySpan = document.createElement('span');
+                companySpan.className = 'exp-company';
+                companySpan.textContent = exp.company || 'Perusahaan';
+                companySpan.addEventListener('click', () => toggleExpBody(wrapper));
+
+                const posPeriodWrapper = document.createElement('div');
+                posPeriodWrapper.style.cssText =
+                    'display:flex; flex-wrap:wrap; align-items:center; gap:4px 8px; width:100%;';
+
+                const positionSpan = document.createElement('span');
+                positionSpan.className = 'exp-position';
+                positionSpan.textContent = exp.position || '';
+                positionSpan.addEventListener('click', () => toggleExpBody(wrapper));
+
+                const periodSpan = document.createElement('span');
+                periodSpan.className = 'exp-period';
+                periodSpan.textContent = exp.period || '';
+                periodSpan.addEventListener('click', () => toggleExpBody(wrapper));
+
+                const toggle = document.createElement('span');
+                toggle.className = 'exp-toggle';
+                toggle.innerHTML = '<i class="fas fa-chevron-down"></i>';
+                toggle.addEventListener('click', () => toggleExpBody(wrapper));
+
+                posPeriodWrapper.appendChild(positionSpan);
+                posPeriodWrapper.appendChild(periodSpan);
+                posPeriodWrapper.appendChild(toggle);
+
+                header.appendChild(companySpan);
+                header.appendChild(posPeriodWrapper);
+
+                const body = document.createElement('div');
+                body.className = 'exp-detail-body';
+                renderExpBody(body, exp);
+
+                wrapper.appendChild(header);
+                wrapper.appendChild(body);
+                expContainer.appendChild(wrapper);
+            });
+        }
+
+        function toggleExpBody(wrapper) {
+            const body = wrapper.querySelector('.exp-detail-body');
+            const toggle = wrapper.querySelector('.exp-toggle');
+            if (body) {
+                body.classList.toggle('open');
+                if (toggle) toggle.classList.toggle('open');
+            }
+        }
+
+        function renderExpBody(body, exp) {
+            body.innerHTML = '';
+            const ul = document.createElement('ul');
+            if (exp.details && exp.details.length > 0) {
+                exp.details.forEach(detail => {
+                    const li = document.createElement('li');
+                    li.textContent = detail;
+                    ul.appendChild(li);
+                });
+            } else {
+                const emptyLi = document.createElement('li');
+                emptyLi.className = 'exp-empty-details';
+                emptyLi.textContent = 'Belum ada detail.';
+                ul.appendChild(emptyLi);
+            }
+            body.appendChild(ul);
+        }
+
+        // --- Daily ---
+        function renderDaily() {
+            const items = data.dailyIncomes || [];
+            if (items.length === 0) {
+                dailyList.innerHTML = '<div class="empty-daily">Belum ada catatan penghasilan.</div>';
+                $('incomeCount').textContent = '0';
+                $('balanceTotal').textContent = '0';
+                return;
+            }
+            const sorted = [...items].sort((a, b) => b.date.localeCompare(a.date));
+            let html = '';
+            let total = 0;
+            sorted.forEach((item) => {
+                total += Number(item.amount) || 0;
+                const amountFormatted = Number(item.amount).toLocaleString('id-ID');
+                html += `
+                            <div class="daily-item" data-id="${item.id}">
+                                <span class="date"><i class="far fa-calendar-alt"></i> ${formatDateShort(item.date)}</span>
+                                <span class="note">${item.note || 'Tanpa keterangan'}</span>
+                                <span class="amount positive">Rp ${amountFormatted}</span>
+                                <div class="item-actions">
+                                    <button class="edit-daily" data-id="${item.id}" title="Edit"><i class="fas fa-pen"></i></button>
+                                    <button class="delete-daily" data-id="${item.id}" title="Hapus"><i class="fas fa-trash-alt"></i></button>
+                                </div>
+                            </div>
+                        `;
+            });
+            dailyList.innerHTML = html;
+            $('incomeCount').textContent = items.length;
+            $('balanceTotal').textContent = total.toLocaleString('id-ID');
+
+            dailyList.querySelectorAll('.edit-daily').forEach(btn => {
+                btn.addEventListener('click', function() { startEditDaily(this.dataset.id); });
+            });
+            dailyList.querySelectorAll('.delete-daily').forEach(btn => {
+                btn.addEventListener('click', function() { deleteDaily(this.dataset.id); });
+            });
+        }
+
+        function startEditDaily(id) {
+            const item = data.dailyIncomes.find(d => d.id === id);
+            if (!item) return;
+            const el = document.querySelector(`.daily-item[data-id="${id}"]`);
+            if (!el) return;
+            const dateSpan = el.querySelector('.date');
+            const noteSpan = el.querySelector('.note');
+            const amountSpan = el.querySelector('.amount');
+            const actions = el.querySelector('.item-actions');
+
+            const dateInput = document.createElement('input');
+            dateInput.type = 'date';
+            dateInput.className = 'edit-field date-field';
+            dateInput.value = item.date;
+            const noteInput = document.createElement('input');
+            noteInput.type = 'text';
+            noteInput.className = 'edit-field note-field';
+            noteInput.value = item.note || '';
+            noteInput.maxLength = 50;
+            const amountInput = document.createElement('input');
+            amountInput.type = 'number';
+            amountInput.className = 'edit-field amount-field';
+            amountInput.value = item.amount;
+            amountInput.min = 0;
+            amountInput.step = 500;
+
+            el.replaceChild(dateInput, dateSpan);
+            el.replaceChild(noteInput, noteSpan);
+            el.replaceChild(amountInput, amountSpan);
+
+            actions.innerHTML = `
+                        <button class="save-daily" data-id="${id}"><i class="fas fa-check"></i> Simpan</button>
+                        <button class="cancel-daily" data-id="${id}">Batal</button>
+                    `;
+            const saveBtn = actions.querySelector('.save-daily');
+            const cancelBtn = actions.querySelector('.cancel-daily');
+            const finish = (save) => {
+                if (save) {
+                    const newDate = dateInput.value;
+                    const newNote = noteInput.value.trim();
+                    const newAmount = parseFloat(amountInput.value) || 0;
+                    if (!newDate) { alert('Tanggal harus diisi!'); return; }
+                    if (newAmount <= 0) { alert('Jumlah harus lebih dari 0!'); return; }
+                    item.date = newDate;
+                    item.note = newNote;
+                    item.amount = newAmount;
+                    saveDataAndSync();
+                    renderDaily();
+                } else { renderDaily(); }
+            };
+            saveBtn.addEventListener('click', () => finish(true));
+            cancelBtn.addEventListener('click', () => finish(false));
+            [amountInput, noteInput, dateInput].forEach(inp => {
+                inp.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') { e.preventDefault();
+                        finish(true); }
+                    if (e.key === 'Escape') { finish(false); }
+                });
+            });
+            dateInput.focus();
+        }
+
+        function deleteDaily(id) {
+            if (!confirm('Hapus catatan ini?')) return;
+            data.dailyIncomes = data.dailyIncomes.filter(d => d.id !== id);
+            saveDataAndSync();
+            renderDaily();
+        }
+
+        function addDaily() {
+            const date = dailyDate.value;
+            const amount = parseFloat(dailyAmount.value) || 0;
+            const note = dailyNote.value.trim();
+            if (!date) { alert('Pilih tanggal!');
+                dailyDate.focus(); return; }
+            if (amount <= 0) { alert('Masukkan jumlah valid!');
+                dailyAmount.focus(); return; }
+            data.dailyIncomes.push({
+                id: 'd' + Date.now() + Math.random().toString(36).substr(2, 4),
+                date: date,
+                amount: amount,
+                note: note || 'Tanpa keterangan',
+            });
+            saveDataAndSync();
+            renderDaily();
+            dailyDate.value = '';
+            dailyAmount.value = '';
+            dailyNote.value = '';
+            dailyDate.value = todayStr();
+            dailyDate.focus();
+        }
+
+        // ============================================================
+        //  12. SLIDE NAVIGATION
+        // ============================================================
+        function goToSlide(index) {
+            currentSlide = index;
+            mainTabBtns.forEach((btn, i) => { btn.classList.toggle('active', i === index); });
+            slides.forEach((slide, i) => { slide.classList.toggle('active-slide', i === index); });
+            if (index === 1) goToSubSlide(0);
+        }
+
+        let currentSlide = 0;
+
+        function goToSubSlide(index) {
+            currentSubSlide = index;
+            subTabBtns.forEach((btn, i) => { btn.classList.toggle('active', i === index); });
+            subSlides.forEach((slide, i) => { slide.classList.toggle('active-sub', i === index); });
+        }
+
+        let currentSubSlide = 0;
+
+        mainTabBtns.forEach((btn) => {
+            btn.addEventListener('click', () => { goToSlide(parseInt(btn.dataset.slide)); });
+        });
+
+        subTabBtns.forEach((btn) => {
+            btn.addEventListener('click', () => { goToSubSlide(parseInt(btn.dataset.sub)); });
+        });
+
+        // ============================================================
+        //  13. PLAN / SHORTCOMING / HABIT
+        // ============================================================
+        function renderPlans() {
+            const items = data.plans || [];
+            if (items.length === 0) {
+                planItems.innerHTML = '<div class="empty-plan">Belum ada rencana.</div>';
+            } else {
+                planItems.innerHTML = '';
+                items.forEach((item, index) => {
+                    const div = document.createElement('div');
+                    div.className = 'plan-item';
+                    div.style.animationDelay = (index * 0.04) + 's';
+                    const check = document.createElement('div');
+                    check.className = 'plan-check';
+                    check.innerHTML = '<i class="fas fa-check"></i>';
+                    check.addEventListener('click', () => completePlan(item.id));
+                    const text = document.createElement('span');
+                    text.className = 'plan-text';
+                    text.textContent = item.text;
+                    const del = document.createElement('button');
+                    del.className = 'plan-delete';
+                    del.innerHTML = '<i class="fas fa-times"></i>';
+                    del.addEventListener('click', () => deletePlan(item.id));
+                    div.appendChild(check);
+                    div.appendChild(text);
+                    div.appendChild(del);
+                    planItems.appendChild(div);
+                });
+            }
+            renderPlanHistory();
+        }
+
+        function completePlan(id) {
+            const idx = data.plans.findIndex(p => p.id === id);
+            if (idx === -1) return;
+            const item = data.plans[idx];
+            data.plans.splice(idx, 1);
+            data.planHistory.push({ id: 'h' + Date.now() + Math.random().toString(36).substr(2, 4), text: item.text,
+                date: todayStr(), completedAt: nowISO() });
+            saveDataAndSync();
+            renderPlans();
+            triggerStarBurst();
+        }
+
+        function deletePlan(id) {
+            if (!confirm('Hapus rencana ini?')) return;
+            data.plans = data.plans.filter(p => p.id !== id);
+            saveDataAndSync();
+            renderPlans();
+        }
+
+        function addPlan() {
+            const text = planInput.value.trim();
+            if (!text) { alert('Masukkan rencana!'); return; }
+            data.plans.push({ id: 'p' + Date.now() + Math.random().toString(36).substr(2, 4), text: text,
+                createdAt: nowISO() });
+            saveDataAndSync();
+            renderPlans();
+            planInput.value = '';
+            planInput.focus();
+        }
+
+        function renderPlanHistory() {
+            const items = data.planHistory || [];
+            planHistoryCount.textContent = items.length;
+            if (items.length === 0) {
+                planHistoryList.innerHTML = '<div class="empty-plan">Belum ada riwayat.</div>';
+                return;
+            }
+            const sorted = [...items].sort((a, b) => b.date.localeCompare(a.date));
+            planHistoryList.innerHTML = '';
+            sorted.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'plan-history-item';
+                div.innerHTML = `
+                            <span class="h-icon"><i class="fas fa-check-circle"></i></span>
+                            <span class="h-text">${item.text}</span>
+                            <span class="h-date">${formatDateShort(item.date)}</span>
+                        `;
+                planHistoryList.appendChild(div);
+            });
+        }
+
+        // --- Shortcoming ---
+        function renderShortcomings() {
+            const items = data.shortcomings || [];
+            if (items.length === 0) {
+                shortcomingItems.innerHTML = '<div class="empty-plan">Belum ada kekurangan.</div>';
+            } else {
+                shortcomingItems.innerHTML = '';
+                items.forEach((item, index) => {
+                    const div = document.createElement('div');
+                    div.className = 'plan-item';
+                    div.style.animationDelay = (index * 0.04) + 's';
+                    const check = document.createElement('div');
+                    check.className = 'plan-check';
+                    check.innerHTML = '<i class="fas fa-check"></i>';
+                    check.addEventListener('click', () => completeShortcoming(item.id));
+                    const text = document.createElement('span');
+                    text.className = 'plan-text';
+                    text.textContent = item.text;
+                    const del = document.createElement('button');
+                    del.className = 'plan-delete';
+                    del.innerHTML = '<i class="fas fa-times"></i>';
+                    del.addEventListener('click', () => deleteShortcoming(item.id));
+                    div.appendChild(check);
+                    div.appendChild(text);
+                    div.appendChild(del);
+                    shortcomingItems.appendChild(div);
+                });
+            }
+            renderShortcomingHistory();
+        }
+
+        function completeShortcoming(id) {
+            const idx = data.shortcomings.findIndex(p => p.id === id);
+            if (idx === -1) return;
+            const item = data.shortcomings[idx];
+            data.shortcomings.splice(idx, 1);
+            data.shortcomingHistory.push({ id: 'h' + Date.now() + Math.random().toString(36).substr(2, 4), text: item
+                    .text, date: todayStr(), completedAt: nowISO() });
+            saveDataAndSync();
+            renderShortcomings();
+            triggerStarBurst();
+        }
+
+        function deleteShortcoming(id) {
+            if (!confirm('Hapus kekurangan ini?')) return;
+            data.shortcomings = data.shortcomings.filter(p => p.id !== id);
+            saveDataAndSync();
+            renderShortcomings();
+        }
+
+        function addShortcoming() {
+            const text = shortcomingInput.value.trim();
+            if (!text) { alert('Masukkan kekurangan!'); return; }
+            data.shortcomings.push({ id: 's' + Date.now() + Math.random().toString(36).substr(2, 4), text: text,
+                createdAt: nowISO() });
+            saveDataAndSync();
+            renderShortcomings();
+            shortcomingInput.value = '';
+            shortcomingInput.focus();
+        }
+
+        function renderShortcomingHistory() {
+            const items = data.shortcomingHistory || [];
+            shortcomingHistoryCount.textContent = items.length;
+            if (items.length === 0) {
+                shortcomingHistoryList.innerHTML = '<div class="empty-plan">Belum ada riwayat.</div>';
+                return;
+            }
+            const sorted = [...items].sort((a, b) => b.date.localeCompare(a.date));
+            shortcomingHistoryList.innerHTML = '';
+            sorted.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'plan-history-item';
+                div.innerHTML = `
+                            <span class="h-icon"><i class="fas fa-check-circle"></i></span>
+                            <span class="h-text">${item.text}</span>
+                            <span class="h-date">${formatDateShort(item.date)}</span>
+                        `;
+                shortcomingHistoryList.appendChild(div);
+            });
+        }
+
+        // --- Habit ---
+        function renderHabits() {
+            const items = data.habits || [];
+            if (items.length === 0) {
+                habitItems.innerHTML = '<div class="empty-plan">Belum ada habit.</div>';
+            } else {
+                habitItems.innerHTML = '';
+                items.forEach((item, index) => {
+                    const div = document.createElement('div');
+                    div.className = 'plan-item';
+                    div.style.animationDelay = (index * 0.04) + 's';
+                    const check = document.createElement('div');
+                    check.className = 'plan-check';
+                    check.innerHTML = '<i class="fas fa-check"></i>';
+                    check.addEventListener('click', () => completeHabit(item.id));
+                    const text = document.createElement('span');
+                    text.className = 'plan-text';
+                    text.textContent = item.text;
+                    const del = document.createElement('button');
+                    del.className = 'plan-delete';
+                    del.innerHTML = '<i class="fas fa-times"></i>';
+                    del.addEventListener('click', () => deleteHabit(item.id));
+                    div.appendChild(check);
+                    div.appendChild(text);
+                    div.appendChild(del);
+                    habitItems.appendChild(div);
+                });
+            }
+            renderHabitHistory();
+        }
+
+        function completeHabit(id) {
+            const idx = data.habits.findIndex(p => p.id === id);
+            if (idx === -1) return;
+            const item = data.habits[idx];
+            data.habits.splice(idx, 1);
+            data.habitHistory.push({ id: 'h' + Date.now() + Math.random().toString(36).substr(2, 4), text: item.text,
+                date: todayStr(), completedAt: nowISO() });
+            saveDataAndSync();
+            renderHabits();
+            triggerStarBurst();
+        }
+
+        function deleteHabit(id) {
+            if (!confirm('Hapus habit ini?')) return;
+            data.habits = data.habits.filter(p => p.id !== id);
+            saveDataAndSync();
+            renderHabits();
+        }
+
+        function addHabit() {
+            const text = habitInput.value.trim();
+            if (!text) { alert('Masukkan habit!'); return; }
+            data.habits.push({ id: 'h' + Date.now() + Math.random().toString(36).substr(2, 4), text: text,
+                createdAt: nowISO() });
+            saveDataAndSync();
+            renderHabits();
+            habitInput.value = '';
+            habitInput.focus();
+        }
+
+        function renderHabitHistory() {
+            const items = data.habitHistory || [];
+            habitHistoryCount.textContent = items.length;
+            if (items.length === 0) {
+                habitHistoryList.innerHTML = '<div class="empty-plan">Belum ada riwayat.</div>';
+                return;
+            }
+            const sorted = [...items].sort((a, b) => b.date.localeCompare(a.date));
+            habitHistoryList.innerHTML = '';
+            sorted.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'plan-history-item';
+                div.innerHTML = `
+                            <span class="h-icon"><i class="fas fa-star" style="color:#ffd700;"></i></span>
+                            <span class="h-text">${item.text}</span>
+                            <span class="h-date">${formatDateShort(item.date)}</span>
+                        `;
+                habitHistoryList.appendChild(div);
+            });
+        }
+
+        // ============================================================
+        //  14. STAR BURST
+        // ============================================================
+        function triggerStarBurst() {
+            const burst = document.createElement('div');
+            burst.className = 'habit-star-burst';
+            document.body.appendChild(burst);
+            const rewardText = document.createElement('div');
+            rewardText.className = 'habit-reward-text';
+            rewardText.textContent = '🌟 Hebat!';
+            document.body.appendChild(rewardText);
+            const emojis = ['⭐', '🌟', '✨', '💫', '🎉', '🏆'];
+            for (let i = 0; i < 12; i++) {
+                const star = document.createElement('div');
+                star.className = 'burst-star';
+                star.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                const angle = Math.random() * 2 * Math.PI;
+                const distance = 60 + Math.random() * 160;
+                star.style.setProperty('--tx', Math.cos(angle) * distance + 'px');
+                star.style.setProperty('--ty', Math.sin(angle) * distance - 60 + 'px');
+                star.style.fontSize = (16 + Math.random() * 24) + 'px';
+                star.style.animationDuration = (0.8 + Math.random() * 0.6) + 's';
+                star.style.animationDelay = (Math.random() * 0.3) + 's';
+                burst.appendChild(star);
+            }
+            setTimeout(() => {
+                if (burst.parentNode) burst.parentNode.removeChild(burst);
+                if (rewardText.parentNode) rewardText.parentNode.removeChild(rewardText);
+            }, 2000);
+        }
+
+        // ============================================================
+        //  15. SETTINGS MODAL
+        // ============================================================
+        function openSettingsModal() {
+            // Populate fields
+            settingsName.value = data.name || '';
+            settingsBio.value = data.bio || '';
+            updateBioCharCount();
+
+            const edu = data.education || { school: '', major: '', gpa: '', organization: '' };
+            settingsEduSchool.value = edu.school || '';
+            settingsEduMajor.value = edu.major || '';
+            settingsEduGpa.value = edu.gpa || '';
+            settingsEduOrg.value = edu.organization || '';
+
+            settingsKelurahan.value = data.kelurahan || '';
+            settingsCity.value = data.city || '';
+            settingsProvinsi.value = data.provinsi || '';
+            settingsCountry.value = data.country || '';
+            settingsPhone.value = data.phone || '';
+            settingsGmail.value = data.gmail || '';
+
+            const previewSrc = data.photo ||
+                `https://ui-avatars.com/api/?name=${encodeURIComponent(data.name || 'Muhamad Maulana')}&background=c9a84c&color=fff&size=80`;
+            settingsPhotoPreview.src = previewSrc;
+
+            renderSettingsTraining();
+            renderSettingsSkills();
+            renderSettingsLinks();
+            renderSettingsExperience();
+
+            settingsModal.classList.add('open');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeSettingsModal() {
+            settingsModal.classList.remove('open');
+            document.body.style.overflow = '';
+        }
+
+        // Bio character counter
+        function updateBioCharCount() {
+            const len = settingsBio.value.length;
+            bioCharCount.textContent = `${len} / 500`;
+            bioCharCount.className = 'char-count' + (len > 480 ? ' warning' : '');
+        }
+        settingsBio.addEventListener('input', updateBioCharCount);
+
+        // --- Settings: Training ---
+        function renderSettingsTraining() {
+            const items = data.training || [];
+            settingsTrainingList.innerHTML = '';
+            if (items.length === 0) {
+                settingsTrainingList.innerHTML = '<span class="empty-tag">Belum ada pelatihan.</span>';
+                return;
+            }
+            items.forEach((item, index) => {
+                const tag = document.createElement('span');
+                tag.className = 'tag-item';
+                tag.textContent = item;
+                const remove = document.createElement('button');
+                remove.className = 'tag-remove';
+                remove.innerHTML = '<i class="fas fa-times"></i>';
+                remove.addEventListener('click', () => {
+                    data.training.splice(index, 1);
+                    saveDataAndSync();
+                    renderSettingsTraining();
+                    renderTraining();
+                });
+                tag.appendChild(remove);
+                settingsTrainingList.appendChild(tag);
+            });
+        }
+
+        function addSettingsTraining() {
+            const val = settingsTrainingInput.value.trim();
+            if (!val) { alert('Masukkan pelatihan!'); return; }
+            if (!data.training) data.training = [];
+            if (data.training.includes(val)) { alert('Pelatihan sudah ada!'); return; }
+            data.training.push(val);
+            saveDataAndSync();
+            renderSettingsTraining();
+            renderTraining();
+            settingsTrainingInput.value = '';
+            settingsTrainingInput.focus();
+        }
+
+        // --- Settings: Skills ---
+        function renderSettingsSkills() {
+            const items = data.skills || [];
+            settingsSkillsList.innerHTML = '';
+            if (items.length === 0) {
+                settingsSkillsList.innerHTML = '<span class="empty-tag">Belum ada skill.</span>';
+                return;
+            }
+            items.forEach((item, index) => {
+                const tag = document.createElement('span');
+                tag.className = 'tag-item';
+                tag.textContent = item;
+                const remove = document.createElement('button');
+                remove.className = 'tag-remove';
+                remove.innerHTML = '<i class="fas fa-times"></i>';
+                remove.addEventListener('click', () => {
+                    data.skills.splice(index, 1);
+                    saveDataAndSync();
+                    renderSettingsSkills();
+                    renderSkills();
+                });
+                tag.appendChild(remove);
+                settingsSkillsList.appendChild(tag);
+            });
+        }
+
+        function addSettingsSkill() {
+            const val = settingsSkillInput.value.trim();
+            if (!val) { alert('Masukkan skill!'); return; }
+            if (!data.skills) data.skills = [];
+            if (data.skills.includes(val)) { alert('Skill sudah ada!'); return; }
+            data.skills.push(val);
+            saveDataAndSync();
+            renderSettingsSkills();
+            renderSkills();
+            settingsSkillInput.value = '';
+            settingsSkillInput.focus();
+        }
+
+        // --- Settings: Links ---
+        function renderSettingsLinks() {
+            const items = data.additionalLinks || [];
+            settingsLinksList.innerHTML = '';
+            if (items.length === 0) {
+                settingsLinksList.innerHTML = '<span class="empty-tag">Belum ada tautan tambahan.</span>';
+                return;
+            }
+            items.forEach((link, index) => {
+                const tag = document.createElement('span');
+                tag.className = 'tag-item';
+                tag.textContent = link.title || 'Link';
+                const remove = document.createElement('button');
+                remove.className = 'tag-remove';
+                remove.innerHTML = '<i class="fas fa-times"></i>';
+                remove.addEventListener('click', () => {
+                    data.additionalLinks.splice(index, 1);
+                    saveDataAndSync();
+                    renderSettingsLinks();
+                    renderLinks();
+                });
+                tag.appendChild(remove);
+                settingsLinksList.appendChild(tag);
+            });
+        }
+
+        function addSettingsLink() {
+            const title = settingsLinkTitle.value.trim() || 'Link';
+            const url = settingsLinkUrl.value.trim();
+            if (!url) { alert('Masukkan URL tautan!'); return; }
+            if (!data.additionalLinks) data.additionalLinks = [];
+            data.additionalLinks.push({ title, url });
+            saveDataAndSync();
+            renderSettingsLinks();
+            renderLinks();
+            settingsLinkTitle.value = '';
+            settingsLinkUrl.value = '';
+            settingsLinkTitle.focus();
+        }
+
+        // --- Settings: Experience ---
+        function renderSettingsExperience() {
+            const items = data.experience || [];
+            settingsExpContainer.innerHTML = '';
+            if (items.length === 0) {
+                settingsExpContainer.innerHTML = '<span class="empty-tag">Belum ada pengalaman.</span>';
+                return;
+            }
+            items.forEach((exp, index) => {
+                const div = document.createElement('div');
+                div.className = 'settings-exp-item';
+
+                const fieldsGrid = document.createElement('div');
+                fieldsGrid.className = 'exp-fields-grid';
+
+                const companyGroup = document.createElement('div');
+                companyGroup.className = 'field-group';
+                const companyLabel = document.createElement('label');
+                companyLabel.textContent = 'Nama Perusahaan / PT';
+                const companyInput = document.createElement('input');
+                companyInput.type = 'text';
+                companyInput.placeholder = 'Contoh: PT Sinyalku.net';
+                companyInput.value = exp.company || '';
+                companyInput.addEventListener('change', () => {
+                    const val = companyInput.value.trim();
+                    if (val) { exp.company = val;
+                        saveDataAndSync();
+                        renderExperience(); }
+                });
+                companyGroup.appendChild(companyLabel);
+                companyGroup.appendChild(companyInput);
+
+                const periodGroup = document.createElement('div');
+                periodGroup.className = 'field-group';
+                const periodLabel = document.createElement('label');
+                periodLabel.textContent = 'Periode';
+                const periodInput = document.createElement('input');
+                periodInput.type = 'text';
+                periodInput.placeholder = 'Contoh: Des 2025 - Agu 2026';
+                periodInput.value = exp.period || '';
+                periodInput.addEventListener('change', () => {
+                    const val = periodInput.value.trim();
+                    if (val) { exp.period = val;
+                        saveDataAndSync();
+                        renderExperience(); }
+                });
+                periodGroup.appendChild(periodLabel);
+                periodGroup.appendChild(periodInput);
+
+                const positionGroup = document.createElement('div');
+                positionGroup.className = 'field-group';
+                const positionLabel = document.createElement('label');
+                positionLabel.textContent = 'Posisi / Jabatan';
+                const positionInput = document.createElement('input');
+                positionInput.type = 'text';
+                positionInput.placeholder = 'Contoh: Monitoring, Customer Service';
+                positionInput.value = exp.position || '';
+                positionInput.addEventListener('change', () => {
+                    const val = positionInput.value.trim();
+                    if (val) { exp.position = val;
+                        saveDataAndSync();
+                        renderExperience(); }
+                });
+                positionGroup.appendChild(positionLabel);
+                positionGroup.appendChild(positionInput);
+
+                fieldsGrid.appendChild(companyGroup);
+                fieldsGrid.appendChild(periodGroup);
+                fieldsGrid.appendChild(positionGroup);
+
+                // Details - auto-resize, no scroll
+                const detailsArea = document.createElement('div');
+                detailsArea.className = 'exp-details-area';
+                const detailsLabel = document.createElement('span');
+                detailsLabel.className = 'exp-details-label';
+                detailsLabel.textContent = 'Detail pekerjaan (satu per baris):';
+                const textarea = document.createElement('textarea');
+                textarea.rows = 1;
+                textarea.placeholder =
+                    'Contoh:\n• Data Entry Task Force PT BAV 140.000+ terkait input nilai, vlookup, upload, approve, verifikasi & koreksi kelengkapan berkas\n• Berhasil membuat formula excel status kelengkapan berkas dan notes menjadi akurat serta terorganisir';
+                textarea.value = (exp.details || []).join('\n');
+
+                // Auto-resize
+                function autoResize(el) {
+                    el.style.height = 'auto';
+                    el.style.height = el.scrollHeight + 'px';
+                }
+
+                textarea.addEventListener('input', function() {
+                    autoResize(this);
+                    const lines = this.value.split('\n').map(s => s.trim()).filter(s => s);
+                    if (lines.length > 0) {
+                        exp.details = lines;
+                        saveDataAndSync();
+                        renderExperience();
+                    }
+                });
+
+                // Initial resize
+                setTimeout(() => autoResize(textarea), 50);
+
+                detailsArea.appendChild(detailsLabel);
+                detailsArea.appendChild(textarea);
+
+                // Remove button
+                const removeRow = document.createElement('div');
+                removeRow.className = 'exp-remove-row';
+                const removeBtn = document.createElement('button');
+                removeBtn.className = 'exp-remove';
+                removeBtn.innerHTML = '<i class="fas fa-trash-alt"></i> Hapus pengalaman';
+                removeBtn.addEventListener('click', () => {
+                    if (!confirm('Hapus pengalaman ini?')) return;
+                    data.experience.splice(index, 1);
+                    saveDataAndSync();
+                    renderSettingsExperience();
+                    renderExperience();
+                });
+                removeRow.appendChild(removeBtn);
+
+                div.appendChild(fieldsGrid);
+                div.appendChild(detailsArea);
+                div.appendChild(removeRow);
+                settingsExpContainer.appendChild(div);
+            });
+        }
+
+        function addSettingsExp() {
+            if (!data.experience) data.experience = [];
+            data.experience.push({
+                id: 'exp' + Date.now() + Math.random().toString(36).substr(2, 4),
+                company: 'Nama Perusahaan',
+                position: 'Posisi',
+                period: 'Periode',
+                details: ['Detail 1']
+            });
+            saveDataAndSync();
+            renderSettingsExperience();
+            renderExperience();
+        }
+
+        // --- Settings: Save all ---
+        function saveSettings() {
+            const name = settingsName.value.trim();
+            const bio = settingsBio.value.trim();
+            const kelurahan = settingsKelurahan.value.trim();
+            const city = settingsCity.value.trim();
+            const provinsi = settingsProvinsi.value.trim();
+            const country = settingsCountry.value.trim();
+            const phone = settingsPhone.value.trim();
+            const gmail = settingsGmail.value.trim();
+
+            const school = settingsEduSchool.value.trim();
+            const major = settingsEduMajor.value.trim();
+            const gpa = settingsEduGpa.value.trim();
+            const org = settingsEduOrg.value.trim();
+
+            if (!name) { alert('Nama tidak boleh kosong!');
+                settingsName.focus(); return; }
+
+            data.name = name;
+            data.bio = bio ||
+                'User yang terampil dalam bekerja secara individu maupun dalam tim untuk menyelesaikan tugas dengan target dan efisien.';
+            data.education = {
+                school: school || '',
+                major: major || '',
+                gpa: gpa || '',
+                organization: org || ''
+            };
+            data.kelurahan = kelurahan || 'Kebon Jeruk';
+            data.city = city || 'Jakarta Barat';
+            data.provinsi = provinsi || 'DKI Jakarta';
+            data.country = country || 'Indonesia';
+            data.phone = phone || '+62 812 3456 7890';
+            data.gmail = gmail || 'maulana@example.com';
+
+            saveDataAndSync();
+            renderAll();
+            closeSettingsModal();
+        }
+
+        // --- Settings: Photo actions ---
+        $('settingsPhotoBtn').addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        $('settingsPhotoRemove').addEventListener('click', () => {
+            if (!data.photo) { alert('Tidak ada foto.'); return; }
+            if (!confirm('Hapus foto profil?')) return;
+            data.photo = null;
+            saveDataAndSync();
+            renderPhoto();
+            const previewSrc =
+                `https://ui-avatars.com/api/?name=${encodeURIComponent(data.name || 'Muhamad Maulana')}&background=c9a84c&color=fff&size=80`;
+            settingsPhotoPreview.src = previewSrc;
+        });
+
+        // --- Settings: Event listeners ---
+        $('settingsBtn').addEventListener('click', openSettingsModal);
+
+        $('settingsCancel').addEventListener('click', closeSettingsModal);
+        $('settingsSave').addEventListener('click', saveSettings);
+
+        // ★ Settings modal: ONLY close via Batal or Simpan — disable overlay click & Escape
+        settingsModal.addEventListener('click', (e) => {
+            // Do nothing — prevent closing on overlay click
+            e.stopPropagation();
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && settingsModal.classList.contains('open')) {
+                // Do nothing — prevent Escape from closing
+                e.preventDefault();
+                e.stopPropagation();
+            }
+        });
+
+        // Training
+        $('settingsTrainingAdd').addEventListener('click', addSettingsTraining);
+        settingsTrainingInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') { e.preventDefault();
+                addSettingsTraining(); }
+        });
+
+        // Skills
+        $('settingsSkillAdd').addEventListener('click', addSettingsSkill);
+        settingsSkillInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') { e.preventDefault();
+                addSettingsSkill(); }
+        });
+
+        // Links
+        $('settingsLinkAdd').addEventListener('click', addSettingsLink);
+        settingsLinkUrl.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') { e.preventDefault();
+                addSettingsLink(); }
+        });
+
+        // Experience
+        $('settingsExpAdd').addEventListener('click', addSettingsExp);
+
+        // ============================================================
+        //  16. UI EVENTS — Daily, Plan, etc.
+        // ============================================================
+        $('addDailyBtn').addEventListener('click', addDaily);
+        dailyNote.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault();
+                addDaily(); } });
+        dailyAmount.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault();
+                dailyNote.focus(); } });
+        dailyDate.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault();
+                dailyAmount.focus(); } });
+        dailyDate.value = todayStr();
+
+        $('planAddBtn').addEventListener('click', addPlan);
+        planInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault();
+                addPlan(); } });
+
+        $('shortcomingAddBtn').addEventListener('click', addShortcoming);
+        shortcomingInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault();
+                addShortcoming(); } });
+
+        $('habitAddBtn').addEventListener('click', addHabit);
+        habitInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault();
+                addHabit(); } });
+
+        // ============================================================
+        //  17. STARRY SKY
+        // ============================================================
+        (function createStars() {
+            const container = document.getElementById('stars-container');
+            const count = 60;
+            for (let i = 0; i < count; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                const size = 1 + Math.random() * 2;
+                star.style.width = size + 'px';
+                star.style.height = size + 'px';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.setProperty('--dur', (2 + Math.random() * 4) + 's');
+                star.style.animationDelay = (Math.random() * 5) + 's';
+                container.appendChild(star);
+            }
+        })();
+
+        // ============================================================
+        //  18. INIT
+        // ============================================================
+        async function initApp() {
+            const localData = loadFromLocalStorage();
+            if (localData) {
+                data = localData;
+                renderAll();
+                console.log('📂 Data dari localStorage (cache)');
+            } else {
+                data = getDefaultData();
+                saveToLocalStorage(data);
+                renderAll();
+                console.log('📦 Data default dibuat');
+            }
+
+            setTimeout(async () => {
+                if (!connectionChecked) {
+                    try {
+                        const snap = await database.ref('.info/connected').once('value');
+                        if (snap.val() === true) {
+                            setOnlineStatus(true);
+                            await syncFromFirebase();
+                        } else {
+                            setOnlineStatus(false);
+                        }
+                    } catch (_) {
+                        setOnlineStatus(false);
+                    }
+                }
+            }, 2000);
+
+            goToSlide(0);
+            goToSubSlide(0);
+
+            console.log('✅ Profil App dengan Firebase siap!');
+            console.log('📡 Status: ' + (isOnline ? 'Online' : 'Offline (cache)'));
+        }
+
+        initApp();
+    </script>
+
+</body>
+</html>
