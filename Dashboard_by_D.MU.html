@@ -1,0 +1,1596 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+    <title>⚡ DevDash · D.MU</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        /* ===== RESET & VARIABEL ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-deep: #0a0e17;
+            --bg-card: rgba(16, 26, 45, 0.75);
+            --bg-card-hover: rgba(26, 42, 72, 0.85);
+            --bg-glass: rgba(10, 16, 30, 0.70);
+            --border-glass: rgba(0, 255, 170, 0.15);
+            --border-card: rgba(0, 255, 170, 0.08);
+
+            --text-primary: #e2f0f5;
+            --text-secondary: #8aa8b8;
+            --text-muted: #4d6a7a;
+
+            --cyan: #00e5b0;
+            --cyan-dim: rgba(0, 229, 176, 0.12);
+            --gold: #f7c948;
+            --gold-dim: rgba(247, 201, 72, 0.15);
+            --purple: #a78bfa;
+            --green: #4ade80;
+            --red: #f87171;
+
+            --shadow-glow: 0 0 30px rgba(0, 229, 176, 0.06);
+            --radius-card: 20px;
+            --radius-glass: 28px;
+
+            --font-display: 'JetBrains Mono', 'Inter', monospace;
+            --font-body: 'Inter', 'JetBrains Mono', sans-serif;
+            --font-card-title: 'Plus Jakarta Sans', 'Inter', sans-serif;
+
+            --transition: 0.25s cubic-bezier(0.2, 0.9, 0.4, 1);
+
+            --sweep-0: rgba(0, 229, 176, 0);
+            --sweep-1: rgba(0, 229, 176, 0.06);
+            --sweep-2: rgba(0, 229, 176, 0.14);
+            --sweep-3: rgba(0, 229, 176, 0.20);
+            --sweep-4: rgba(0, 229, 176, 0.14);
+            --sweep-5: rgba(0, 229, 176, 0.06);
+            --sweep-6: rgba(0, 229, 176, 0);
+
+            --star-glow: rgba(247, 201, 72, 0.6);
+        }
+
+        /* ===== LIGHT MODE — NAVY + PUTIH ELEGAN ===== */
+        body.light-mode {
+            --bg-deep: #081224;
+            --bg-card: rgba(255, 255, 255, 0.05);
+            --bg-card-hover: rgba(255, 255, 255, 0.10);
+            --bg-glass: rgba(8, 18, 36, 0.75);
+            --border-glass: rgba(212, 175, 55, 0.18);
+            --border-card: rgba(255, 255, 255, 0.06);
+
+            --text-primary: #f0f4f8;
+            --text-secondary: #b8d0e0;
+            --text-muted: #6a8a9e;
+
+            --cyan: #d4af37;
+            --cyan-dim: rgba(212, 175, 55, 0.10);
+            --gold: #d4af37;
+            --gold-dim: rgba(212, 175, 55, 0.12);
+            --purple: #b894f0;
+            --green: #6ad4a0;
+            --red: #f08a8a;
+
+            --shadow-glow: 0 0 40px rgba(212, 175, 55, 0.04);
+
+            --sweep-0: rgba(212, 175, 55, 0);
+            --sweep-1: rgba(212, 175, 55, 0.05);
+            --sweep-2: rgba(212, 175, 55, 0.12);
+            --sweep-3: rgba(212, 175, 55, 0.20);
+            --sweep-4: rgba(212, 175, 55, 0.12);
+            --sweep-5: rgba(212, 175, 55, 0.05);
+            --sweep-6: rgba(212, 175, 55, 0);
+
+            --star-glow: rgba(212, 175, 55, 0.6);
+        }
+
+        /* ===== BASE ===== */
+        body {
+            font-family: var(--font-body);
+            background: var(--bg-deep);
+            min-height: 100vh;
+            padding: 20px 20px 30px;
+            position: relative;
+            overflow-x: hidden;
+            color: var(--text-primary);
+            transition: background 0.5s ease, color 0.4s ease;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            background-size: 42px 42px;
+            pointer-events: none;
+            z-index: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            width: min(500px, 80vw);
+            height: min(500px, 80vw);
+            background: radial-gradient(circle, rgba(0, 229, 176, 0.05) 0%, transparent 70%);
+            bottom: -160px;
+            right: -120px;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 0;
+            animation: orbFloat 30s infinite alternate ease-in-out;
+            transition: background 0.5s ease;
+        }
+
+        body.light-mode::after {
+            background: radial-gradient(circle, rgba(212, 175, 55, 0.05) 0%, transparent 70%);
+            animation: orbFloatGold 30s infinite alternate ease-in-out;
+        }
+
+        @keyframes orbFloat {
+            0% {
+                transform: translate(0, 0) scale(1);
+                opacity: 0.4;
+            }
+            100% {
+                transform: translate(-40px, -30px) scale(1.15);
+                opacity: 0.7;
+            }
+        }
+
+        @keyframes orbFloatGold {
+            0% {
+                transform: translate(0, 0) scale(1);
+                opacity: 0.3;
+            }
+            100% {
+                transform: translate(-40px, -30px) scale(1.2);
+                opacity: 0.6;
+            }
+        }
+
+        body.light-mode .star-bg {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        body.light-mode .star-bg span {
+            position: absolute;
+            display: block;
+            width: 2px;
+            height: 2px;
+            background: #d4af37;
+            border-radius: 50%;
+            opacity: 0;
+            animation: twinkle 4s infinite alternate;
+        }
+
+        @keyframes twinkle {
+            0% {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+            50% {
+                opacity: 0.8;
+                transform: scale(1.2);
+            }
+            100% {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+
+        .glass-panel {
+            background: var(--bg-glass);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border-radius: var(--radius-glass);
+            border: 1px solid var(--border-glass);
+            box-shadow: var(--shadow-glow);
+            transition: all var(--transition);
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 28px;
+            margin-bottom: 24px;
+            gap: 14px;
+        }
+
+        .logo-brand {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            text-decoration: none;
+        }
+        .logo-icon {
+            position: relative;
+            width: 50px;
+            height: 50px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .logo-icon svg {
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(0 0 12px rgba(247, 201, 72, 0.25));
+            transition: filter 0.3s ease;
+        }
+        body.light-mode .logo-icon svg {
+            filter: drop-shadow(0 0 20px rgba(212, 175, 55, 0.30));
+        }
+
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.15;
+        }
+        .logo-text .brand-name {
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 1.2rem;
+            letter-spacing: 0.3px;
+            background: linear-gradient(135deg, #f7c948 0%, #f5b342 50%, #e8a838 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 20px rgba(247, 201, 72, 0.15);
+            transition: text-shadow 0.3s ease;
+        }
+        body.light-mode .logo-text .brand-name {
+            background: linear-gradient(135deg, #f0d060 0%, #d4af37 50%, #b8960f 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            text-shadow: 0 0 40px rgba(212, 175, 55, 0.15);
+        }
+        .logo-text .brand-sub {
+            font-size: 0.58rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            margin-top: 1px;
+            font-family: var(--font-display);
+            transition: color 0.3s ease;
+        }
+        .logo-text .brand-sub i {
+            color: var(--cyan);
+            margin-right: 4px;
+            transition: color 0.3s ease;
+        }
+        body.light-mode .logo-text .brand-sub {
+            color: #b8d0e0;
+        }
+        body.light-mode .logo-text .brand-sub i {
+            color: #d4af37;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+
+        .stats {
+            display: flex;
+            gap: 18px;
+            background: rgba(0, 229, 176, 0.04);
+            padding: 4px 18px;
+            border-radius: 60px;
+            border: 1px solid rgba(0, 229, 176, 0.06);
+            transition: all 0.3s ease;
+        }
+        body.light-mode .stats {
+            background: rgba(255, 255, 255, 0.04);
+            border-color: rgba(255, 255, 255, 0.06);
+        }
+        .stat-item {
+            text-align: center;
+        }
+        .stat-number {
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 1.3rem;
+            color: var(--cyan);
+            letter-spacing: -0.5px;
+            transition: color 0.3s ease;
+        }
+        body.light-mode .stat-number {
+            color: #d4af37;
+        }
+        .stat-label {
+            font-size: 0.6rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: color 0.3s ease;
+        }
+        body.light-mode .stat-label {
+            color: #b8d0e0;
+        }
+
+        .theme-toggle {
+            background: rgba(0, 229, 176, 0.06);
+            border: 1px solid rgba(0, 229, 176, 0.12);
+            padding: 8px 18px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.75rem;
+            cursor: pointer;
+            color: var(--text-secondary);
+            backdrop-filter: blur(4px);
+            transition: all var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: var(--font-body);
+        }
+        .theme-toggle:hover {
+            background: var(--cyan-dim);
+            border-color: var(--cyan);
+            color: var(--cyan);
+            transform: translateY(-2px);
+            box-shadow: 0 0 20px rgba(0, 229, 176, 0.08);
+        }
+        body.light-mode .theme-toggle {
+            background: rgba(255, 255, 255, 0.04);
+            border-color: rgba(255, 255, 255, 0.08);
+            color: #b8d0e0;
+        }
+        body.light-mode .theme-toggle:hover {
+            background: rgba(212, 175, 55, 0.10);
+            border-color: #d4af37;
+            color: #d4af37;
+            box-shadow: 0 0 30px rgba(212, 175, 55, 0.05);
+        }
+
+        /* ===== ACTION BAR ===== */
+        .action-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 24px;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .search-glass {
+            background: rgba(0, 229, 176, 0.04);
+            border-radius: 60px;
+            padding: 10px 22px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+            max-width: 400px;
+            border: 1px solid rgba(0, 229, 176, 0.10);
+            transition: all var(--transition);
+        }
+        .search-glass:focus-within {
+            background: rgba(0, 229, 176, 0.06);
+            border-color: var(--cyan);
+            box-shadow: 0 0 25px rgba(0, 229, 176, 0.06);
+        }
+        body.light-mode .search-glass {
+            background: rgba(255, 255, 255, 0.04);
+            border-color: rgba(255, 255, 255, 0.06);
+        }
+        body.light-mode .search-glass:focus-within {
+            background: rgba(255, 255, 255, 0.07);
+            border-color: #d4af37;
+            box-shadow: 0 0 30px rgba(212, 175, 55, 0.04);
+        }
+        .search-glass i {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            transition: color 0.3s ease;
+        }
+        body.light-mode .search-glass i {
+            color: #b8d0e0;
+        }
+        .search-glass input {
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--text-primary);
+            width: 100%;
+            font-size: 0.85rem;
+            font-family: var(--font-body);
+            transition: color 0.3s ease;
+        }
+        body.light-mode .search-glass input {
+            color: #f0f4f8;
+        }
+        .search-glass input::placeholder {
+            color: var(--text-muted);
+            opacity: 0.8;
+            transition: color 0.3s ease;
+        }
+        body.light-mode .search-glass input::placeholder {
+            color: #6a8a9e;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .filter-btn {
+            background: rgba(0, 229, 176, 0.04);
+            border: 1px solid rgba(0, 229, 176, 0.08);
+            padding: 8px 18px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all var(--transition);
+            color: var(--text-secondary);
+            backdrop-filter: blur(4px);
+            font-family: var(--font-body);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .filter-btn i {
+            font-size: 0.8rem;
+        }
+        .filter-btn.active {
+            background: var(--cyan-dim);
+            border-color: var(--cyan);
+            color: var(--cyan);
+            box-shadow: 0 0 25px rgba(0, 229, 176, 0.06);
+        }
+        .filter-btn:hover {
+            background: var(--cyan-dim);
+            border-color: var(--cyan);
+            color: var(--cyan);
+            transform: translateY(-2px);
+        }
+        body.light-mode .filter-btn {
+            background: rgba(255, 255, 255, 0.04);
+            border-color: rgba(255, 255, 255, 0.06);
+            color: #b8d0e0;
+        }
+        body.light-mode .filter-btn:hover {
+            background: rgba(212, 175, 55, 0.08);
+            border-color: #d4af37;
+            color: #d4af37;
+        }
+        body.light-mode .filter-btn.active {
+            background: rgba(212, 175, 55, 0.10);
+            border-color: #d4af37;
+            color: #d4af37;
+            box-shadow: 0 0 30px rgba(212, 175, 55, 0.04);
+        }
+
+        /* ===== MOTIVASI DEVELOPER ===== */
+        .motivation-card {
+            background: linear-gradient(135deg, rgba(0, 229, 176, 0.04), rgba(167, 139, 250, 0.04));
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 14px 24px;
+            margin-bottom: 24px;
+            border: 1px solid rgba(0, 229, 176, 0.06);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 14px;
+            transition: all var(--transition);
+        }
+        body.light-mode .motivation-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.03), rgba(212, 175, 55, 0.03));
+            border-color: rgba(255, 255, 255, 0.04);
+        }
+        .motivation-content {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex: 1;
+            min-width: 200px;
+        }
+        .motivation-icon {
+            font-size: 1.8rem;
+            color: var(--gold);
+            filter: drop-shadow(0 0 8px rgba(247, 201, 72, 0.15));
+            transition: color 0.3s ease, filter 0.3s ease;
+        }
+        body.light-mode .motivation-icon {
+            color: #d4af37;
+            filter: drop-shadow(0 0 12px rgba(212, 175, 55, 0.12));
+        }
+        .motivation-text {
+            flex: 1;
+        }
+        .motivation-quote {
+            font-family: var(--font-display);
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            line-height: 1.5;
+            font-style: italic;
+            transition: color 0.3s ease;
+        }
+        .motivation-quote::before {
+            content: '“';
+            color: var(--cyan);
+            opacity: 0.5;
+            margin-right: 3px;
+            transition: color 0.3s ease;
+        }
+        .motivation-quote::after {
+            content: '”';
+            color: var(--cyan);
+            opacity: 0.5;
+            margin-left: 3px;
+            transition: color 0.3s ease;
+        }
+        body.light-mode .motivation-quote::before,
+        body.light-mode .motivation-quote::after {
+            color: #d4af37;
+            opacity: 0.4;
+        }
+        .motivation-author {
+            font-size: 0.65rem;
+            color: var(--text-secondary);
+            margin-top: 4px;
+            letter-spacing: 0.3px;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+        .motivation-author::before {
+            content: '— ';
+            color: var(--text-muted);
+        }
+        body.light-mode .motivation-author {
+            color: #b8d0e0;
+        }
+        body.light-mode .motivation-author::before {
+            color: #6a8a9e;
+        }
+
+        .refresh-motivation {
+            background: rgba(0, 229, 176, 0.06);
+            border: 1px solid rgba(0, 229, 176, 0.08);
+            border-radius: 40px;
+            padding: 7px 16px;
+            color: var(--text-secondary);
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: all var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            backdrop-filter: blur(4px);
+            font-family: var(--font-body);
+            font-weight: 500;
+        }
+        .refresh-motivation:hover {
+            background: var(--cyan-dim);
+            border-color: var(--cyan);
+            color: var(--cyan);
+            transform: scale(1.02);
+        }
+        body.light-mode .refresh-motivation {
+            background: rgba(255, 255, 255, 0.04);
+            border-color: rgba(255, 255, 255, 0.06);
+            color: #b8d0e0;
+        }
+        body.light-mode .refresh-motivation:hover {
+            background: rgba(212, 175, 55, 0.08);
+            border-color: #d4af37;
+            color: #d4af37;
+        }
+
+        /* ===== SCROLLABLE GRID ===== */
+        .scrollable-menu-container {
+            max-height: 56vh;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding-right: 6px;
+            margin-top: 6px;
+            border-radius: 24px;
+            scroll-behavior: smooth;
+        }
+        .scrollable-menu-container::-webkit-scrollbar {
+            width: 5px;
+        }
+        .scrollable-menu-container::-webkit-scrollbar-track {
+            background: rgba(0, 229, 176, 0.04);
+            border-radius: 10px;
+        }
+        .scrollable-menu-container::-webkit-scrollbar-thumb {
+            background: var(--cyan);
+            border-radius: 10px;
+            opacity: 0.4;
+        }
+        body.light-mode .scrollable-menu-container::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.02);
+        }
+        body.light-mode .scrollable-menu-container::-webkit-scrollbar-thumb {
+            background: #d4af37;
+            opacity: 0.3;
+        }
+
+        /* ===== MENU GRID ===== */
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+            gap: 20px;
+        }
+
+        /* ===== CARD ===== */
+        .card {
+            background: var(--bg-card);
+            backdrop-filter: blur(10px);
+            border-radius: var(--radius-card);
+            padding: 20px 14px 18px;
+            text-align: center;
+            transition: all var(--transition);
+            border: 1px solid var(--border-card);
+            position: relative;
+            cursor: pointer;
+            overflow: hidden;
+            transform: translateZ(0);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            min-height: 145px;
+        }
+        .card::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, transparent 40%, rgba(0, 229, 176, 0.02));
+            pointer-events: none;
+            border-radius: var(--radius-card);
+        }
+        body.light-mode .card::after {
+            background: linear-gradient(135deg, transparent 40%, rgba(212, 175, 55, 0.02));
+        }
+        .card:hover {
+            transform: translateY(-5px) scale(1.01);
+            border-color: rgba(0, 229, 176, 0.25);
+            background: var(--bg-card-hover);
+            box-shadow: 0 16px 40px -12px rgba(0, 0, 0, 0.4), 0 0 30px rgba(0, 229, 176, 0.03);
+        }
+        body.light-mode .card:hover {
+            border-color: rgba(212, 175, 55, 0.25);
+            background: var(--bg-card-hover);
+            box-shadow: 0 16px 40px -12px rgba(0, 0, 0, 0.3), 0 0 40px rgba(212, 175, 55, 0.03);
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg,
+                    var(--sweep-0) 0%,
+                    var(--sweep-1) 15%,
+                    var(--sweep-2) 30%,
+                    var(--sweep-3) 45%,
+                    var(--sweep-4) 55%,
+                    var(--sweep-5) 70%,
+                    var(--sweep-6) 85%,
+                    var(--sweep-0) 100%);
+            transform: translateX(-100%);
+            pointer-events: none;
+            border-radius: var(--radius-card);
+            will-change: transform;
+            transition: none;
+        }
+        .card:hover::before {
+            animation: sweepLeftToRight 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+
+        @keyframes sweepLeftToRight {
+            0% {
+                transform: translateX(-100%);
+            }
+            100% {
+                transform: translateX(100%);
+            }
+        }
+
+        .card .star-burst-container {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: 20;
+            overflow: visible;
+            border-radius: var(--radius-card);
+        }
+
+        .card .star-particle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: var(--gold);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--star-glow), 0 0 16px var(--star-glow);
+            pointer-events: none;
+            opacity: 0;
+            animation: starBurstParticle 0.7s cubic-bezier(0.2, 0.9, 0.4, 1) forwards;
+            transform: translate(-50%, -50%);
+        }
+
+        .card .star-particle.star-sharp {
+            width: 3px;
+            height: 3px;
+            background: #fff;
+            box-shadow: 0 0 6px rgba(255, 255, 255, 0.6);
+        }
+
+        @keyframes starBurstParticle {
+            0% {
+                opacity: 0;
+                transform: translate(0, 0) scale(0.2) rotate(0deg);
+            }
+            20% {
+                opacity: 1;
+                transform: translate(var(--tx), var(--ty)) scale(1.2) rotate(20deg);
+            }
+            60% {
+                opacity: 1;
+                transform: translate(calc(var(--tx) * 1.5), calc(var(--ty) * 1.5)) scale(0.8) rotate(40deg);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(calc(var(--tx) * 2.2), calc(var(--ty) * 2.2)) scale(0.2) rotate(60deg);
+            }
+        }
+
+        .card-icon {
+            font-size: 2rem;
+            margin-bottom: 12px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
+            pointer-events: none;
+            line-height: 1;
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            min-height: 52px;
+            flex-shrink: 0;
+        }
+        .card-icon i {
+            font-size: 2rem;
+            display: inline-block;
+        }
+        .card-icon img {
+            width: 46px;
+            height: 46px;
+            object-fit: contain;
+            border-radius: 10px;
+        }
+        .card-icon svg {
+            width: 46px;
+            height: 46px;
+            display: block;
+            flex-shrink: 0;
+        }
+        .card:hover .card-icon {
+            transform: scale(1.04) rotate(1deg);
+        }
+
+        .card-title {
+            font-weight: 700;
+            font-size: 0.85rem;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+            pointer-events: none;
+            font-family: var(--font-card-title);
+            transition: color 0.3s ease;
+            position: relative;
+            z-index: 1;
+            line-height: 1.3;
+        }
+        body.light-mode .card-title {
+            color: #f0f4f8;
+        }
+
+        .card-category {
+            font-size: 0.58rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            font-weight: 600;
+            pointer-events: none;
+            font-family: var(--font-display);
+            transition: color 0.3s ease;
+            position: relative;
+            z-index: 1;
+            line-height: 1.3;
+        }
+        body.light-mode .card-category {
+            color: #b8d0e0;
+        }
+
+        .favorite-icon {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            transition: all 0.2s;
+            z-index: 10;
+            width: 28px;
+            height: 28px;
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            backdrop-filter: blur(4px);
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid transparent;
+        }
+        .favorite-icon:hover {
+            transform: scale(1.12);
+            background: rgba(0, 0, 0, 0.35);
+        }
+        .favorite-icon.fav-active {
+            color: var(--gold);
+            text-shadow: 0 0 16px rgba(247, 201, 72, 0.3);
+            border-color: rgba(247, 201, 72, 0.15);
+        }
+        body.light-mode .favorite-icon {
+            background: rgba(255, 255, 255, 0.04);
+            color: #6a8a9e;
+            border-color: rgba(255, 255, 255, 0.04);
+        }
+        body.light-mode .favorite-icon:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+        body.light-mode .favorite-icon.fav-active {
+            color: #d4af37;
+            border-color: rgba(212, 175, 55, 0.20);
+            background: rgba(212, 175, 55, 0.06);
+            text-shadow: 0 0 20px rgba(212, 175, 55, 0.15);
+        }
+
+        .empty-message {
+            text-align: center;
+            padding: 48px 20px;
+            color: var(--text-secondary);
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 24px;
+            backdrop-filter: blur(6px);
+            margin: 20px 0;
+            font-weight: 500;
+            border: 1px dashed rgba(0, 229, 176, 0.08);
+            font-family: var(--font-display);
+            transition: all 0.3s ease;
+        }
+        .empty-message i {
+            color: var(--cyan);
+            opacity: 0.5;
+            margin: 0 6px;
+            transition: color 0.3s ease;
+        }
+        body.light-mode .empty-message {
+            color: #b8d0e0;
+            background: rgba(255, 255, 255, 0.02);
+            border-color: rgba(255, 255, 255, 0.04);
+        }
+        body.light-mode .empty-message i {
+            color: #d4af37;
+            opacity: 0.4;
+        }
+
+        footer {
+            margin-top: 32px;
+            text-align: center;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            background: rgba(0, 0, 0, 0.2);
+            padding: 12px 18px;
+            border-radius: 48px;
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(0, 229, 176, 0.04);
+            font-family: var(--font-display);
+            letter-spacing: 0.2px;
+            transition: all 0.3s ease;
+        }
+        footer i {
+            color: var(--gold);
+            opacity: 0.6;
+            transition: color 0.3s ease;
+        }
+        body.light-mode footer {
+            color: #6a8a9e;
+            background: rgba(255, 255, 255, 0.02);
+            border-color: rgba(255, 255, 255, 0.04);
+        }
+        body.light-mode footer i {
+            color: #d4af37;
+            opacity: 0.5;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 700px) {
+            body {
+                padding: 14px 14px 22px;
+            }
+            .header {
+                flex-direction: column;
+                align-items: stretch;
+                padding: 16px 18px;
+            }
+            .header-right {
+                justify-content: space-between;
+            }
+            .stats {
+                gap: 12px;
+                padding: 4px 14px;
+            }
+            .menu-grid {
+                grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
+                gap: 16px;
+            }
+            .card {
+                padding: 16px 10px 14px;
+                min-height: 130px;
+            }
+            .card-icon {
+                font-size: 1.7rem;
+                min-height: 44px;
+            }
+            .card-icon i {
+                font-size: 1.7rem;
+            }
+            .card-icon img {
+                width: 40px;
+                height: 40px;
+            }
+            .card-icon svg {
+                width: 40px;
+                height: 40px;
+            }
+            .card-title {
+                font-size: 0.75rem;
+            }
+            .scrollable-menu-container {
+                max-height: 50vh;
+            }
+            .filter-btn {
+                padding: 6px 14px;
+                font-size: 0.7rem;
+            }
+            .logo-text .brand-name {
+                font-size: 1rem;
+            }
+            .logo-icon {
+                width: 40px;
+                height: 40px;
+            }
+            .motivation-quote {
+                font-size: 0.85rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .menu-grid {
+                grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+                gap: 14px;
+            }
+            .scrollable-menu-container {
+                max-height: 46vh;
+            }
+            .header-right {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            .stats {
+                flex: 1;
+                justify-content: center;
+            }
+            .search-glass {
+                max-width: 100%;
+            }
+            .motivation-card {
+                padding: 12px 16px;
+            }
+            .motivation-icon {
+                font-size: 1.4rem;
+            }
+            .action-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .filter-group {
+                justify-content: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== BINTANG LATAR (light mode) ===== -->
+    <div class="star-bg" id="starBg"></div>
+
+    <div class="container">
+
+        <!-- ===== HEADER ===== -->
+        <header class="glass-panel header">
+            <a class="logo-brand" href="#" onclick="return false;">
+                <div class="logo-icon">
+                    <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="32" cy="32" r="28" stroke="url(#goldGrad)" stroke-width="1.5" opacity="0.25" />
+                        <circle cx="32" cy="32" r="22" stroke="url(#goldGrad)" stroke-width="0.8" opacity="0.15" />
+                        <path d="M38 18C30 18 24 24 24 32C24 40 30 46 38 46C42 46 45.5 44 48 41C43 44 36 44 32 40C28 36 28 28 32 24C36 20 43 20 48 23C45.5 20 42 18 38 18Z"
+                        fill="url(#goldGrad)" opacity="0.9" />
+                        <path d="M32 10L35.5 22L48 22L38 30L42 42L32 34L22 42L26 30L16 22L28.5 22L32 10Z"
+                        fill="url(#starGrad)" stroke="#f7c948" stroke-width="0.6" />
+                        <circle cx="32" cy="32" r="2" fill="#00e5b0" opacity="0.7" />
+                        <path d="M32 14V20M32 44V50M18 32H24M40 32H46"
+                        stroke="#00e5b0" stroke-width="1.2" opacity="0.4" stroke-linecap="round" />
+                        <circle cx="22" cy="22" r="1.2" fill="#00e5b0" opacity="0.3" />
+                        <circle cx="42" cy="22" r="1.2" fill="#00e5b0" opacity="0.3" />
+                        <circle cx="22" cy="42" r="1.2" fill="#00e5b0" opacity="0.3" />
+                        <circle cx="42" cy="42" r="1.2" fill="#00e5b0" opacity="0.3" />
+                        <defs>
+                            <linearGradient id="goldGrad" x1="0" y1="0" x2="1" y2="1">
+                                <stop offset="0%" stop-color="#f7c948" />
+                                <stop offset="50%" stop-color="#f5b342" />
+                                <stop offset="100%" stop-color="#e8a838" />
+                            </linearGradient>
+                            <linearGradient id="starGrad" x1="0" y1="0" x2="1" y2="1">
+                                <stop offset="0%" stop-color="#fde68a" />
+                                <stop offset="100%" stop-color="#f7c948" />
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+                <div class="logo-text">
+                    <span class="brand-name">D.MU</span>
+                    <span class="brand-sub"><i class="fas fa-code"></i> Utsmaniyah · Dev Studio</span>
+                </div>
+            </a>
+
+            <div class="header-right">
+                <button id="themeToggleBtn" class="theme-toggle">
+                    <i class="fas fa-moon"></i> <span id="themeText">Mode Gelap</span>
+                </button>
+                <div class="stats">
+                    <div class="stat-item">
+                        <div class="stat-number" id="totalCount">0</div>
+                        <div class="stat-label">Menu</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="favCount">0</div>
+                        <div class="stat-label">Favorit</div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- ===== ACTION BAR ===== -->
+        <div class="action-bar">
+            <div class="search-glass">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="Cari menu, AI, gudang, OLT, support..." />
+            </div>
+            <div class="filter-group">
+                <button id="favFilterBtn" class="filter-btn"><i class="far fa-star"></i> Favorit</button>
+                <button id="resetFilterBtn" class="filter-btn"><i class="fas fa-sync-alt"></i> Reset</button>
+            </div>
+        </div>
+
+        <!-- ===== MOTIVASI DEVELOPER ===== -->
+        <div class="motivation-card">
+            <div class="motivation-content">
+                <div class="motivation-icon"><i class="fas fa-terminal"></i></div>
+                <div class="motivation-text">
+                    <div class="motivation-quote" id="motivationQuote">"Kode yang baik adalah kode yang bisa dibaca oleh manusia dan mesin."</div>
+                    <div class="motivation-author" id="motivationAuthor">— Prinsip Developer</div>
+                </div>
+            </div>
+            <button class="refresh-motivation" id="refreshMotivationBtn">
+                <i class="fas fa-sync-alt"></i> Ganti
+            </button>
+        </div>
+
+        <!-- ===== GRID MENU ===== -->
+        <div class="scrollable-menu-container" id="scrollableGridContainer">
+            <div id="menuGrid" class="menu-grid"></div>
+            <div id="emptyState" class="empty-message" style="display:none">
+                <i class="fas fa-code"></i> Tidak ada menu yang cocok dengan filter <i class="fas fa-code"></i><br />
+                <span style="font-size:0.8rem;opacity:0.6;">Coba ubah kata kunci atau nonaktifkan filter favorit</span>
+            </div>
+        </div>
+
+        <!-- ===== FOOTER ===== -->
+        <footer>
+            <i class="fas fa-star"></i> Klik bintang untuk favorit · Klik kartu untuk buka halaman ·
+            Data tersimpan otomatis · <i class="fas fa-crown"></i> D.MU
+        </footer>
+    </div>
+
+    <script>
+        // ================================================================
+        //  DATA MENU — logo SVG murni (tanpa teks)
+        // ================================================================
+
+        // --- Speedtest Logo (SVG murni, tanpa label teks) ---
+        const speedtestLogoSVG = `
+            <svg width="46" height="46" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <path d="M 18,72 A 34,34 0 1,1 82,72" fill="none" stroke="#ffffff" stroke-width="7" stroke-linecap="round" />
+                <line x1="50" y1="65" x2="70" y2="45" stroke="#ffffff" stroke-width="7" stroke-linecap="round" />
+                <circle cx="50" cy="65" r="4" fill="#ffffff" />
+            </svg>
+        `;
+
+        // --- Open Coding Custom Logo (kode + gear) ---
+        const openCodingLogoSVG = `
+            <svg width="46" height="46" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="8" y="12" width="48" height="40" rx="8" stroke="#00e5b0" stroke-width="2" fill="rgba(0,229,176,0.05)" />
+                <path d="M20 28L28 36L20 44" stroke="#00e5b0" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+                <path d="M44 44L36 36L44 28" stroke="#00e5b0" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+                <circle cx="32" cy="36" r="4" stroke="#00e5b0" stroke-width="2" fill="rgba(0,229,176,0.1)" />
+                <path d="M32 28V32M32 40V44" stroke="#00e5b0" stroke-width="2" stroke-linecap="round" />
+                <path d="M24 36L28 36M36 36L40 36" stroke="#00e5b0" stroke-width="2" stroke-linecap="round" />
+                <circle cx="32" cy="32" r="1.5" fill="#00e5b0" opacity="0.5" />
+            </svg>
+        `;
+
+        // --- To Do List Developer Logo (centang + list) ---
+        const todoListLogoSVG = `
+            <svg width="46" height="46" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="8" y="8" width="48" height="48" rx="12" stroke="#f7c948" stroke-width="2" fill="rgba(247,201,72,0.05)" />
+                <path d="M18 32L26 40L46 20" stroke="#f7c948" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />
+                <circle cx="32" cy="32" r="1.8" fill="#f7c948" opacity="0.3" />
+                <path d="M22 50L42 50" stroke="#f7c948" stroke-width="2" stroke-linecap="round" opacity="0.2" />
+                <path d="M22 54L38 54" stroke="#f7c948" stroke-width="2" stroke-linecap="round" opacity="0.15" />
+            </svg>
+        `;
+
+        // --- Shopee Logo (keranjang belanja) ---
+        const shopeeLogoSVG = `
+            <svg width="46" height="46" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="32" cy="32" r="28" stroke="#EE4D2D" stroke-width="1.5" opacity="0.2" />
+                <path d="M14 18L18 18L22 40L46 40L50 24L20 24" stroke="#EE4D2D" stroke-width="2.5" fill="rgba(238,77,45,0.05)" />
+                <circle cx="28" cy="44" r="4" stroke="#EE4D2D" stroke-width="2" fill="rgba(238,77,45,0.1)" />
+                <circle cx="42" cy="44" r="4" stroke="#EE4D2D" stroke-width="2" fill="rgba(238,77,45,0.1)" />
+                <path d="M24 28L30 28M34 28L40 28" stroke="#EE4D2D" stroke-width="2.5" stroke-linecap="round" />
+                <path d="M20 32L26 32M38 32L44 32" stroke="#EE4D2D" stroke-width="2" stroke-linecap="round" opacity="0.5" />
+                <circle cx="32" cy="32" r="1.5" fill="#EE4D2D" opacity="0.3" />
+            </svg>
+        `;
+
+        // DATA MENU
+        const menuData = [
+            { name: "WhatsApp Web", icon: "fab fa-whatsapp", color: "#25D366", url: "https://web.whatsapp.com/",
+                category: "Komunikasi", keywords: "wa web" },
+            { name: "Gemini AI", icon: "fas fa-brain", color: "#8b5cf6", url: "https://gemini.google.com/app?hl=id",
+                category: "AI", keywords: "gemini ai" },
+            { name: "YouTube", icon: "fab fa-youtube", color: "#ff0000", url: "https://www.youtube.com/",
+                category: "Hiburan", keywords: "video" },
+            // Speedtest — logo SVG murni tanpa teks
+            {
+                name: "Speedtest",
+                logo: speedtestLogoSVG,
+                icon: "",
+                color: "#ffffff",
+                url: "https://www.speedtest.net/id",
+                category: "Tools",
+                keywords: "speedtest internet jaringan okt"
+            },
+            // MY PROFILE
+            {
+                name: "My Profile",
+                icon: "fas fa-user-circle",
+                color: "#f7c948",
+                url: "https://asbahmaghrib.github.io/developer/My_Profile",
+                category: "Profile",
+                keywords: "profile d.mu developer"
+            },
+            // INSTAGRAM
+            {
+                name: "Instagram",
+                icon: "fab fa-instagram",
+                color: "#E4405F",
+                url: "https://www.instagram.com/",
+                category: "Sosial",
+                keywords: "instagram sosial media foto video story"
+            },
+            // FACEBOOK
+            {
+                name: "Facebook",
+                icon: "fab fa-facebook",
+                color: "#1877F2",
+                url: "https://www.facebook.com/",
+                category: "Sosial",
+                keywords: "facebook sosial media teman grup"
+            },
+            // GMAIL
+            {
+                name: "Gmail",
+                icon: "fas fa-envelope",
+                color: "#EA4335",
+                url: "https://mail.google.com/mail/u/0/#inbox",
+                category: "Komunikasi",
+                keywords: "gmail email surat google mail"
+            },
+            // OPEN CODING CUSTOM
+            {
+                name: "Open Coding Custom",
+                logo: openCodingLogoSVG,
+                icon: "fas fa-code",
+                color: "#00e5b0",
+                url: "https://asbahmaghrib.github.io/developer/open_coding_custom",
+                category: "Developer · Tools",
+                keywords: "open coding custom editor developer tools d.mu"
+            },
+            // TO DO LIST DEVELOPER
+            {
+                name: "To Do List Developer",
+                logo: todoListLogoSVG,
+                icon: "fas fa-tasks",
+                color: "#f7c948",
+                url: "https://asbahmaghrib.github.io/developer/to_do_list_developer",
+                category: "Developer · Produktivitas",
+                keywords: "to do list developer tugas produktivitas d.mu"
+            },
+            // SHOPEE
+            {
+                name: "Shopee",
+                logo: shopeeLogoSVG,
+                icon: "fas fa-shopping-cart",
+                color: "#EE4D2D",
+                url: "https://shopee.co.id/",
+                category: "Belanja Online",
+                keywords: "shopee belanja online e-commerce jual beli"
+            }
+        ];
+
+        // ================================================================
+        //  MOTIVASI
+        // ================================================================
+        const motivationQuotes = [{
+            text: "Kode yang baik adalah kode yang bisa dibaca oleh manusia dan mesin.",
+            author: "Prinsip Developer"
+        }, {
+            text: "Debugging itu seperti menjadi detektif dalam film kriminal — setiap bug punya pelaku.",
+            author: "Pepatah Dev"
+        }, {
+            text: "Programmer hebat bukan yang tidak pernah error, tapi yang cepat memperbaikinya.",
+            author: "Mental Juara"
+        }, {
+            text: "Kesederhanaan adalah kunci keandalan dalam koding.",
+            author: "KISS Principle"
+        }, {
+            text: "Setiap bug adalah pelajaran berharga yang membuat kita lebih bijak.",
+            author: "Growth Mindset"
+        }, {
+            text: "Koding adalah seni memecahkan masalah dengan logika dan kreativitas.",
+            author: "Developer's Creed"
+        }, {
+            text: "Dokumentasi adalah cinta untuk masa depan — rawatlah kode-mu.",
+            author: "Legacy Builder"
+        }, {
+            text: "Refactor hari ini, bahagia esok hari. Jangan tunda perbaikan.",
+            author: "Clean Code"
+        }, {
+            text: "Clean code adalah tanda tangan seorang profesional sejati.",
+            author: "Uncle Bob"
+        }, {
+            text: "Belajar koding berarti belajar cara belajar — itu seni seumur hidup.",
+            author: "Lifelong Learner"
+        }, {
+            text: "Kesabaran dan ketekunan adalah dua senjata utama dalam debugging.",
+            author: "Debugger's Mantra"
+        }, {
+            text: "Kode yang elegan adalah kode yang sederhana, bukan yang rumit.",
+            author: "Simplicity First"
+        }, {
+            text: "Jangan takut untuk refactor — keberanian adalah bagian dari craftsmanship.",
+            author: "Dev Wisdom"
+        }, {
+            text: "Setiap pull request adalah kesempatan untuk mengajarkan sesuatu.",
+            author: "Kolaborasi"
+        }, {
+            text: "Test itu bukan beban, tapi jaring pengaman untuk keberanianmu.",
+            author: "TDD Advocate"
+        }];
+
+        // ================================================================
+        //  STATE
+        // ================================================================
+        let favorites = JSON.parse(localStorage.getItem('nex_favorites')) || [];
+        let favFilterActive = false;
+        let searchTerm = "";
+        let isLightMode = localStorage.getItem('nex_theme') === 'light';
+
+        // ================================================================
+        //  BINTANG LATAR (light mode)
+        // ================================================================
+        function generateStars() {
+            const container = document.getElementById('starBg');
+            if (!container) return;
+            container.innerHTML = '';
+            const count = 120;
+            for (let i = 0; i < count; i++) {
+                const span = document.createElement('span');
+                const x = Math.random() * 100;
+                const y = Math.random() * 100;
+                const size = 1 + Math.random() * 2.5;
+                const delay = Math.random() * 5;
+                const duration = 3 + Math.random() * 4;
+                span.style.left = x + '%';
+                span.style.top = y + '%';
+                span.style.width = size + 'px';
+                span.style.height = size + 'px';
+                span.style.animationDelay = delay + 's';
+                span.style.animationDuration = duration + 's';
+                span.style.opacity = 0.2 + Math.random() * 0.5;
+                container.appendChild(span);
+            }
+        }
+        generateStars();
+
+        // ================================================================
+        //  THEME
+        // ================================================================
+        function applyTheme() {
+            const body = document.body;
+            const themeText = document.getElementById('themeText');
+            const toggleIcon = document.getElementById('themeToggleBtn').querySelector('i');
+            const starBg = document.getElementById('starBg');
+
+            if (isLightMode) {
+                body.classList.add('light-mode');
+                themeText.innerText = 'Mode Terang';
+                toggleIcon.className = 'fas fa-sun';
+                if (starBg) starBg.style.display = 'block';
+            } else {
+                body.classList.remove('light-mode');
+                themeText.innerText = 'Mode Gelap';
+                toggleIcon.className = 'fas fa-moon';
+                if (starBg) starBg.style.display = 'none';
+            }
+        }
+
+        function toggleTheme() {
+            isLightMode = !isLightMode;
+            localStorage.setItem('nex_theme', isLightMode ? 'light' : 'dark');
+            applyTheme();
+        }
+
+        document.getElementById('themeToggleBtn').addEventListener('click', toggleTheme);
+        applyTheme();
+
+        // ================================================================
+        //  STAR BURST
+        // ================================================================
+        function createStarBurst(cardElement, event) {
+            const rect = cardElement.getBoundingClientRect();
+            const cx = event.clientX - rect.left;
+            const cy = event.clientY - rect.top;
+
+            const container = document.createElement('div');
+            container.className = 'star-burst-container';
+            container.style.position = 'absolute';
+            container.style.inset = '0';
+            container.style.pointerEvents = 'none';
+            container.style.zIndex = '20';
+            container.style.overflow = 'visible';
+            container.style.borderRadius = '20px';
+            cardElement.appendChild(container);
+
+            const count = 14 + Math.floor(Math.random() * 10);
+            const colors = ['#d4af37', '#f0d060', '#ffffff', '#f7c948', '#e8c84a'];
+
+            for (let i = 0; i < count; i++) {
+                const star = document.createElement('div');
+                star.className = 'star-particle';
+                const angle = Math.random() * 2 * Math.PI;
+                const dist = 30 + Math.random() * 80;
+                const tx = Math.cos(angle) * dist;
+                const ty = Math.sin(angle) * dist;
+                star.style.setProperty('--tx', tx + 'px');
+                star.style.setProperty('--ty', ty + 'px');
+                star.style.left = cx + 'px';
+                star.style.top = cy + 'px';
+                star.style.background = colors[Math.floor(Math.random() * colors.length)];
+                const size = 3 + Math.random() * 5;
+                star.style.width = size + 'px';
+                star.style.height = size + 'px';
+                star.style.boxShadow =
+                    `0 0 ${size * 2}px ${star.style.background}, 0 0 ${size * 4}px ${star.style.background}40`;
+                star.style.animationDuration = (0.5 + Math.random() * 0.4) + 's';
+                star.style.animationDelay = (Math.random() * 0.15) + 's';
+                if (Math.random() > 0.6) {
+                    star.classList.add('star-sharp');
+                    star.style.width = '2px';
+                    star.style.height = '2px';
+                }
+                container.appendChild(star);
+            }
+
+            setTimeout(() => {
+                if (container.parentNode) container.remove();
+            }, 900);
+        }
+
+        // ================================================================
+        //  FUNGSI UTAMA
+        // ================================================================
+        function updateStats() {
+            document.getElementById('totalCount').innerText = menuData.length;
+            document.getElementById('favCount').innerText = favorites.length;
+        }
+
+        function saveFav() {
+            localStorage.setItem('nex_favorites', JSON.stringify(favorites));
+            updateStats();
+            render();
+        }
+
+        function toggleFavorite(menuName, e) {
+            e.stopPropagation();
+            if (favorites.includes(menuName)) {
+                favorites = favorites.filter(f => f !== menuName);
+            } else {
+                favorites.push(menuName);
+            }
+            saveFav();
+        }
+
+        function render() {
+            let filtered = [...menuData];
+            if (favFilterActive) {
+                filtered = filtered.filter(m => favorites.includes(m.name));
+            }
+            if (searchTerm.trim() !== "") {
+                const q = searchTerm.toLowerCase();
+                filtered = filtered.filter(m =>
+                    m.name.toLowerCase().includes(q) ||
+                    (m.keywords && m.keywords.toLowerCase().includes(q))
+                );
+            }
+
+            const grid = document.getElementById('menuGrid');
+            const emptyDiv = document.getElementById('emptyState');
+
+            if (filtered.length === 0) {
+                grid.innerHTML = '';
+                emptyDiv.style.display = 'block';
+                return;
+            }
+            emptyDiv.style.display = 'none';
+
+            grid.innerHTML = filtered.map(item => {
+                const isFav = favorites.includes(item.name);
+
+                let iconHTML = '';
+                if (item.logo) {
+                    iconHTML = item.logo;
+                } else {
+                    iconHTML = `<i class="${item.icon}" style="color:${item.color}"></i>`;
+                }
+
+                return `
+                            <div class="card" data-url="${item.url.replace(/"/g, '&quot;')}" data-name="${item.name}">
+                                <div class="favorite-icon ${isFav ? 'fav-active' : ''}" data-name="${item.name}">
+                                    <i class="${isFav ? 'fas fa-star' : 'far fa-star'}"></i>
+                                </div>
+                                <div class="card-icon">${iconHTML}</div>
+                                <div class="card-title">${item.name}</div>
+                                <div class="card-category">${item.category}</div>
+                            </div>
+                        `;
+            }).join('');
+
+            // Event: klik kartu → buka url + star burst
+            document.querySelectorAll('.card').forEach(card => {
+                const url = card.getAttribute('data-url');
+
+                card.addEventListener('mouseenter', (e) => {
+                    createStarBurst(card, e);
+                });
+
+                card.addEventListener('click', (e) => {
+                    if (e.target.closest('.favorite-icon')) return;
+                    if (url) {
+                        window.open(url, '_blank', 'noopener noreferrer');
+                    }
+                });
+            });
+
+            // Event: klik bintang
+            document.querySelectorAll('.favorite-icon').forEach(star => {
+                star.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const menuName = star.getAttribute('data-name');
+                    if (menuName) toggleFavorite(menuName, e);
+                });
+            });
+        }
+
+        // ================================================================
+        //  MOTIVASI
+        // ================================================================
+        function getRandomMotivation() {
+            return motivationQuotes[Math.floor(Math.random() * motivationQuotes.length)];
+        }
+
+        function displayRandomMotivation() {
+            const q = getRandomMotivation();
+            document.getElementById('motivationQuote').innerText = q.text;
+            document.getElementById('motivationAuthor').innerHTML = q.author;
+        }
+
+        // ================================================================
+        //  EVENT LISTENERS
+        // ================================================================
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            searchTerm = e.target.value;
+            render();
+        });
+
+        const favBtn = document.getElementById('favFilterBtn');
+        favBtn.addEventListener('click', () => {
+            favFilterActive = !favFilterActive;
+            if (favFilterActive) {
+                favBtn.classList.add('active');
+                favBtn.innerHTML = '<i class="fas fa-star"></i> Favorit (aktif)';
+            } else {
+                favBtn.classList.remove('active');
+                favBtn.innerHTML = '<i class="far fa-star"></i> Favorit';
+            }
+            render();
+        });
+
+        document.getElementById('resetFilterBtn').addEventListener('click', () => {
+            searchTerm = "";
+            favFilterActive = false;
+            document.getElementById('searchInput').value = "";
+            favBtn.classList.remove('active');
+            favBtn.innerHTML = '<i class="far fa-star"></i> Favorit';
+            render();
+        });
+
+        document.getElementById('refreshMotivationBtn').addEventListener('click', displayRandomMotivation);
+
+        // ================================================================
+        //  INIT
+        // ================================================================
+        updateStats();
+        render();
+        displayRandomMotivation();
+
+        const sc = document.getElementById('scrollableGridContainer');
+        if (sc) sc.style.scrollBehavior = 'smooth';
+    </script>
+
+</body>
+</html>
