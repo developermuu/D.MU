@@ -1,0 +1,1338 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Buka Semua Link + AI Voice Interaktif</title>
+
+    <style>
+        /* ----- RESET & GLOBAL ----- */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: #0f172a;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .card {
+            background: #1e293b;
+            border-radius: 28px;
+            padding: 40px 42px;
+            max-width: 900px;
+            width: 100%;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+            border: 1px solid #334155;
+            transition: all 0.2s;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 32px;
+        }
+
+        .card-header .icon {
+            font-size: 32px;
+            line-height: 1;
+        }
+
+        .card-header h1 {
+            font-size: 26px;
+            font-weight: 700;
+            color: #f1f5f9;
+            letter-spacing: -0.3px;
+        }
+
+        .card-header .badge {
+            margin-left: auto;
+            background: #3b82f6;
+            color: #fff;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px 14px;
+            border-radius: 100px;
+            letter-spacing: 0.3px;
+        }
+
+        /* ----- FORM ----- */
+        .form-group {
+            margin-bottom: 22px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #cbd5e1;
+            margin-bottom: 6px;
+            letter-spacing: 0.2px;
+        }
+
+        .form-group .label-hint {
+            font-weight: 400;
+            color: #94a3b8;
+            font-size: 13px;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="number"],
+        .form-group input[type="password"] {
+            width: 100%;
+            padding: 12px 16px;
+            font-size: 15px;
+            font-family: inherit;
+            background: #0f172a;
+            border: 1.5px solid #334155;
+            border-radius: 14px;
+            color: #f1f5f9;
+            outline: none;
+            transition: border-color 0.25s, box-shadow 0.25s;
+        }
+
+        .form-group input:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);
+        }
+
+        .form-group input::placeholder {
+            color: #64748b;
+        }
+
+        .range-row {
+            display: flex;
+            gap: 18px;
+            align-items: flex-end;
+        }
+
+        .range-row .form-group {
+            flex: 1;
+            margin-bottom: 0;
+        }
+
+        .range-row .form-group label {
+            margin-bottom: 6px;
+        }
+
+        /* ----- PREVIEW ----- */
+        .preview-section {
+            margin-top: 28px;
+            padding-top: 22px;
+            border-top: 1.5px solid #334155;
+        }
+
+        .preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .preview-header .left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .preview-header span {
+            font-size: 14px;
+            font-weight: 600;
+            color: #cbd5e1;
+        }
+
+        .preview-header .count {
+            background: #334155;
+            color: #e2e8f0;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 2px 14px;
+            border-radius: 100px;
+        }
+
+        .preview-controls {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .preview-controls .btn-sm {
+            padding: 4px 14px;
+            font-size: 12px;
+            font-weight: 600;
+            border: none;
+            border-radius: 100px;
+            cursor: pointer;
+            background: #334155;
+            color: #e2e8f0;
+            transition: 0.2s;
+        }
+
+        .preview-controls .btn-sm:hover {
+            background: #475569;
+        }
+
+        .preview-list {
+            background: #0f172a;
+            border-radius: 14px;
+            padding: 12px 16px;
+            max-height: 220px;
+            overflow-y: auto;
+            border: 1px solid #1e293b;
+        }
+
+        .preview-list::-webkit-scrollbar {
+            width: 6px;
+        }
+        .preview-list::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .preview-list::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 10px;
+        }
+
+        .preview-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 5px 0;
+            border-bottom: 1px solid #1e293b;
+            font-size: 14px;
+            color: #94a3b8;
+        }
+
+        .preview-item:last-child {
+            border-bottom: none;
+        }
+
+        .preview-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #3b82f6;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .preview-item .num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 28px;
+            height: 28px;
+            background: #1e293b;
+            border-radius: 8px;
+            color: #f1f5f9;
+            font-size: 12px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .preview-item .link-text {
+            color: #60a5fa;
+            font-size: 13px;
+            word-break: break-all;
+        }
+
+        .preview-empty {
+            color: #64748b;
+            font-size: 14px;
+            padding: 8px 0;
+            text-align: center;
+            font-style: italic;
+        }
+
+        /* ----- BUTTONS ----- */
+        .actions {
+            display: flex;
+            gap: 14px;
+            margin-top: 28px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 14px 32px;
+            font-size: 16px;
+            font-weight: 700;
+            font-family: inherit;
+            border: none;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex: 1;
+            min-width: 150px;
+            letter-spacing: 0.2px;
+        }
+
+        .btn-primary {
+            background: #3b82f6;
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(59, 130, 246, 0.35);
+        }
+
+        .btn-primary:hover {
+            background: #2563eb;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(59, 130, 246, 0.45);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-secondary {
+            background: #334155;
+            color: #e2e8f0;
+        }
+
+        .btn-secondary:hover {
+            background: #475569;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: #22c55e;
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(34, 197, 94, 0.35);
+        }
+
+        .btn-success:hover {
+            background: #16a34a;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(239, 68, 68, 0.3);
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+            transform: translateY(-2px);
+        }
+
+        .btn-purple {
+            background: #8b5cf6;
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(139, 92, 246, 0.35);
+        }
+
+        .btn-purple:hover {
+            background: #7c3aed;
+            transform: translateY(-2px);
+        }
+
+        .btn-sm {
+            padding: 8px 18px;
+            font-size: 14px;
+            border-radius: 12px;
+        }
+
+        /* ----- AI SECTION ----- */
+        .ai-section {
+            margin-top: 30px;
+            padding-top: 24px;
+            border-top: 1.5px solid #334155;
+        }
+
+        .ai-section h3 {
+            font-size: 18px;
+            color: #f1f5f9;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .ai-section h3 .ai-badge {
+            background: #8b5cf6;
+            font-size: 11px;
+            padding: 2px 12px;
+            border-radius: 100px;
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .ai-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            align-items: flex-end;
+        }
+
+        .ai-row .form-group {
+            flex: 1;
+            min-width: 180px;
+            margin-bottom: 0;
+        }
+
+        .ai-row .form-group label {
+            margin-bottom: 4px;
+        }
+
+        .ai-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 14px;
+        }
+
+        .ai-actions .btn {
+            flex: 0 1 auto;
+            min-width: 100px;
+            padding: 10px 24px;
+            font-size: 14px;
+        }
+
+        .mic-btn {
+            background: #334155;
+            color: #e2e8f0;
+            border: none;
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            font-size: 20px;
+            cursor: pointer;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mic-btn:hover {
+            background: #475569;
+        }
+
+        .mic-btn.recording {
+            background: #ef4444;
+            color: #fff;
+            animation: pulse 1s infinite;
+        }
+
+        .mic-btn.listening {
+            background: #22c55e;
+            color: #fff;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        /* ----- TOAST ----- */
+        .toast {
+            margin-top: 20px;
+            padding: 14px 20px;
+            border-radius: 14px;
+            font-size: 14px;
+            font-weight: 500;
+            display: none;
+            animation: fadeSlide 0.3s ease;
+        }
+
+        .toast.show {
+            display: block;
+        }
+
+        .toast-success {
+            background: #064e3b;
+            color: #6ee7b7;
+            border: 1px solid #065f46;
+        }
+
+        .toast-error {
+            background: #7f1d1d;
+            color: #fca5a5;
+            border: 1px solid #991b1b;
+        }
+
+        .toast-info {
+            background: #1e3a5f;
+            color: #93c5fd;
+            border: 1px solid #1e40af;
+        }
+
+        .toast-warning {
+            background: #78350f;
+            color: #fcd34d;
+            border: 1px solid #92400e;
+        }
+
+        @keyframes fadeSlide {
+            0% {
+                opacity: 0;
+                transform: translateY(-8px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ----- RESPONSIVE ----- */
+        @media (max-width: 600px) {
+            .card {
+                padding: 24px 18px;
+            }
+
+            .card-header h1 {
+                font-size: 20px;
+            }
+
+            .card-header .badge {
+                font-size: 10px;
+                padding: 2px 10px;
+            }
+
+            .range-row {
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .actions {
+                flex-direction: column;
+            }
+
+            .btn {
+                min-width: unset;
+                padding: 13px 20px;
+                font-size: 15px;
+            }
+
+            .preview-item {
+                font-size: 12px;
+            }
+
+            .preview-item .num {
+                min-width: 22px;
+                height: 22px;
+                font-size: 10px;
+            }
+
+            .ai-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .ai-row .form-group {
+                min-width: unset;
+            }
+
+            .mic-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 18px;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .card {
+                padding: 18px 12px;
+            }
+
+            .card-header {
+                flex-wrap: wrap;
+            }
+
+            .card-header .badge {
+                margin-left: 0;
+            }
+        }
+
+        .mt-1 {
+            margin-top: 6px;
+        }
+        .text-muted {
+            color: #64748b;
+            font-size: 13px;
+        }
+        .flex-center {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .voice-status {
+            display: inline-block;
+            padding: 4px 14px;
+            border-radius: 100px;
+            font-size: 12px;
+            font-weight: 600;
+            background: #334155;
+            color: #94a3b8;
+        }
+
+        .voice-status.active {
+            background: #22c55e;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+
+        <!-- HEADER -->
+        <div class="card-header">
+            <span class="icon">🔗</span>
+            <h1>Buka Semua Link</h1>
+            <span class="badge">+ AI Voice</span>
+        </div>
+
+        <!-- URL PATTERN -->
+        <div class="form-group">
+            <label>
+                Pola URL
+                <span class="label-hint">— gunakan <code style="background:#0f172a;padding:1px 8px;border-radius:6px;color:#facc15;">{n}</code> sebagai tempat nomor</span>
+            </label>
+            <input
+            type="text"
+            id="urlPattern"
+            value="http://127.0.0.1:5500/folder%20vscode%20untuk%20coba%20-%20Copy/{n}.html"
+            placeholder="Contoh: https://example.com/page-{n}.html"
+            />
+            <div class="mt-1 text-muted">
+                💡 <kbd style="background:#1e293b;padding:1px 10px;border-radius:6px;color:#cbd5e1;">{n}</kbd> akan diganti dengan angka dari range
+            </div>
+        </div>
+
+        <!-- RANGE -->
+        <div class="range-row">
+            <div class="form-group">
+                <label>Dari</label>
+                <input type="number" id="fromNum" value="1" min="1" step="1" />
+            </div>
+            <div class="form-group">
+                <label>Sampai</label>
+                <input type="number" id="toNum" value="10" min="1" step="1" />
+            </div>
+        </div>
+
+        <!-- PREVIEW -->
+        <div class="preview-section">
+            <div class="preview-header">
+                <div class="left">
+                    <span>📋 Pratinjau Link</span>
+                    <span class="count" id="linkCount">0 link</span>
+                </div>
+                <div class="preview-controls">
+                    <button class="btn-sm" id="selectAllBtn">✔ Pilih Semua</button>
+                    <button class="btn-sm" id="deselectAllBtn">✖ Hapus Pilihan</button>
+                </div>
+            </div>
+            <div class="preview-list" id="previewList">
+                <div class="preview-empty">Masukkan range untuk melihat pratinjau</div>
+            </div>
+        </div>
+
+        <!-- ACTIONS -->
+        <div class="actions">
+            <button class="btn btn-primary" id="openBtn">
+                <span>🚀</span> Buka Semua
+            </button>
+            <button class="btn btn-success" id="openCheckedBtn">
+                <span>✅</span> Buka yang Dicentang
+            </button>
+            <button class="btn btn-secondary" id="previewBtn">
+                <span>👁️</span> Pratinjau
+            </button>
+            <button class="btn btn-danger" id="clearBtn">
+                <span>✕</span> Bersihkan
+            </button>
+        </div>
+
+        <!-- AI VOICE SECTION -->
+        <div class="ai-section">
+            <h3>
+                🧠 AI Voice Assistant
+                <span class="ai-badge">DeepSeek</span>
+                <span class="voice-status" id="voiceStatus">⏸️ Tidak aktif</span>
+            </h3>
+
+            <div class="form-group">
+                <label>API Key DeepSeek <span class="label-hint">(dari platform.deepseek.com)</span></label>
+                <input type="password" id="apiKey" placeholder="sk-..." />
+            </div>
+
+            <div class="ai-row">
+                <div class="form-group">
+                    <label>Perintah (teks atau suara)</label>
+                    <input type="text" id="commandInput" placeholder="Contoh: buka 1 sampai 4" />
+                </div>
+                <button class="mic-btn" id="micBtn" title="Tekan untuk bicara (tahan / klik)">🎤</button>
+                <button class="mic-btn" id="toggleListenBtn" title="Nyalakan mode dengar terus-menerus" style="background:#8b5cf6;">🔛</button>
+            </div>
+
+            <div class="ai-actions">
+                <button class="btn btn-purple" id="sendCommandBtn">
+                    <span>📨</span> Kirim Perintah
+                </button>
+                <button class="btn btn-secondary" id="clearCommandBtn">
+                    <span>✕</span> Kosongkan
+                </button>
+            </div>
+            <div class="mt-1 text-muted">
+                💬 Contoh: "buka 1 sampai 5" atau "buka 2,4,6" — AI akan mencentang dan membuka link sesuai.
+                <br />🎤 Tekan tombol mikrofon untuk bicara, atau gunakan mode dengar terus-menerus.
+            </div>
+        </div>
+
+        <!-- TOAST -->
+        <div class="toast" id="toast"></div>
+    </div>
+
+    <script>
+        (function() {
+            'use strict';
+
+            // ----- DOM refs -----
+            const urlInput = document.getElementById('urlPattern');
+            const fromInput = document.getElementById('fromNum');
+            const toInput = document.getElementById('toNum');
+            const previewList = document.getElementById('previewList');
+            const linkCount = document.getElementById('linkCount');
+            const openBtn = document.getElementById('openBtn');
+            const openCheckedBtn = document.getElementById('openCheckedBtn');
+            const previewBtn = document.getElementById('previewBtn');
+            const clearBtn = document.getElementById('clearBtn');
+            const selectAllBtn = document.getElementById('selectAllBtn');
+            const deselectAllBtn = document.getElementById('deselectAllBtn');
+            const toast = document.getElementById('toast');
+
+            // AI elements
+            const apiKeyInput = document.getElementById('apiKey');
+            const commandInput = document.getElementById('commandInput');
+            const micBtn = document.getElementById('micBtn');
+            const toggleListenBtn = document.getElementById('toggleListenBtn');
+            const sendCommandBtn = document.getElementById('sendCommandBtn');
+            const clearCommandBtn = document.getElementById('clearCommandBtn');
+            const voiceStatus = document.getElementById('voiceStatus');
+
+            // state
+            let currentLinks = [];
+            let recognition = null;
+            let isRecording = false;
+            let continuousListening = false;
+            let synth = window.speechSynthesis;
+            let isSpeaking = false;
+            let cooldownTimer = null;
+
+            // ----- helpers -----
+            function getLinks() {
+                const pattern = urlInput.value.trim();
+                const from = parseInt(fromInput.value, 10);
+                const to = parseInt(toInput.value, 10);
+
+                if (!pattern) return [];
+                if (isNaN(from) || isNaN(to)) return [];
+                if (from > to) return [];
+
+                const links = [];
+                for (let i = from; i <= to; i++) {
+                    const url = pattern.replace(/\{n\}/g, String(i));
+                    links.push({ number: i, url });
+                }
+                return links;
+            }
+
+            function showToast(message, type = 'info') {
+                toast.textContent = message;
+                toast.className = 'toast show toast-' + type;
+                clearTimeout(toast._timer);
+                toast._timer = setTimeout(() => {
+                    toast.className = 'toast';
+                }, 6000);
+            }
+
+            // ----- Speak with recognition pause/cooldown -----
+            function speakText(text) {
+                if (!synth) return;
+                // Batalkan ucapan sebelumnya
+                synth.cancel();
+
+                // Hentikan recognition saat AI berbicara
+                pauseRecognition();
+
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'id-ID';
+                utterance.rate = 1.0;
+                utterance.pitch = 1.0;
+
+                isSpeaking = true;
+                voiceStatus.textContent = '🔇 AI bicara...';
+                voiceStatus.className = 'voice-status active';
+
+                utterance.onend = function() {
+                    isSpeaking = false;
+                    voiceStatus.textContent = continuousListening ? '🔊 Mendengar terus...' : '⏸️ Tidak aktif';
+                    voiceStatus.className = 'voice-status' + (continuousListening ? ' active' : '');
+                    // Restart recognition setelah cooldown 1,5 detik
+                    if (continuousListening) {
+                        scheduleRecognitionRestart(1500);
+                    }
+                };
+
+                utterance.onerror = function() {
+                    isSpeaking = false;
+                    voiceStatus.textContent = continuousListening ? '🔊 Mendengar terus...' : '⏸️ Tidak aktif';
+                    voiceStatus.className = 'voice-status' + (continuousListening ? ' active' : '');
+                    if (continuousListening) {
+                        scheduleRecognitionRestart(1500);
+                    }
+                };
+
+                synth.speak(utterance);
+            }
+
+            // ----- Recognition control -----
+            function pauseRecognition() {
+                if (recognition && isRecording) {
+                    try {
+                        recognition.stop();
+                    } catch (_) {}
+                }
+                // Hapus cooldown timer
+                if (cooldownTimer) {
+                    clearTimeout(cooldownTimer);
+                    cooldownTimer = null;
+                }
+            }
+
+            function scheduleRecognitionRestart(delay = 500) {
+                if (cooldownTimer) {
+                    clearTimeout(cooldownTimer);
+                    cooldownTimer = null;
+                }
+                cooldownTimer = setTimeout(() => {
+                    cooldownTimer = null;
+                    if (continuousListening && !isSpeaking && recognition) {
+                        try {
+                            recognition.continuous = true;
+                            recognition.start();
+                        } catch (_) {
+                            // Jika sudah berjalan, abaikan
+                        }
+                    }
+                }, delay);
+            }
+
+            // render preview with checkboxes
+            function renderPreview() {
+                const links = getLinks();
+                currentLinks = links;
+                previewList.innerHTML = '';
+
+                if (links.length === 0) {
+                    previewList.innerHTML = '<div class="preview-empty">Tidak ada link untuk ditampilkan</div>';
+                    linkCount.textContent = '0 link';
+                    return;
+                }
+
+                const fragment = document.createDocumentFragment();
+                links.forEach((item) => {
+                    const div = document.createElement('div');
+                    div.className = 'preview-item';
+                    div.innerHTML = `
+                        <input type="checkbox" data-number="${item.number}" />
+                        <span class="num">${item.number}</span>
+                        <span class="link-text">${item.url}</span>
+                    `;
+                    fragment.appendChild(div);
+                });
+
+                previewList.appendChild(fragment);
+                updateLinkCount();
+            }
+
+            function updateLinkCount() {
+                const checkboxes = previewList.querySelectorAll('input[type="checkbox"]');
+                const checked = previewList.querySelectorAll('input[type="checkbox"]:checked').length;
+                const total = checkboxes.length;
+                linkCount.textContent = `${total} link (${checked} dicentang)`;
+            }
+
+            function getCheckedLinks() {
+                const checkboxes = previewList.querySelectorAll('input[type="checkbox"]:checked');
+                const checkedNumbers = Array.from(checkboxes).map(cb => parseInt(cb.dataset.number, 10));
+                return currentLinks.filter(item => checkedNumbers.includes(item.number));
+            }
+
+            // ----- open functions -----
+            function openLinks(links) {
+                if (links.length === 0) {
+                    showToast('⚠️ Tidak ada link yang dipilih untuk dibuka.', 'error');
+                    return false;
+                }
+
+                if (!urlInput.value.includes('{n}')) {
+                    showToast('⚠️ Pola URL harus mengandung <strong>{n}</strong> sebagai placeholder nomor.', 'error');
+                    return false;
+                }
+
+                if (links.length > 20) {
+                    if (!confirm(`Anda akan membuka ${links.length} tab sekaligus. Lanjutkan?`)) {
+                        showToast('Dibatalkan.', 'info');
+                        return false;
+                    }
+                }
+
+                let opened = 0;
+                let failed = 0;
+                links.forEach(item => {
+                    try {
+                        const win = window.open(item.url, '_blank');
+                        if (win) opened++;
+                        else failed++;
+                    } catch (_) {
+                        failed++;
+                    }
+                });
+
+                if (failed > 0) {
+                    showToast(`✅ ${opened} link dibuka, ${failed} gagal (mungkin diblokir pop-up).`, 'warning');
+                } else {
+                    showToast(`✅ Berhasil membuka ${opened} link!`, 'success');
+                }
+                return true;
+            }
+
+            function openAll() {
+                const links = getLinks();
+                if (links.length === 0) {
+                    showToast('⚠️ Tidak ada link untuk dibuka.', 'error');
+                    return;
+                }
+                openLinks(links);
+            }
+
+            function openChecked() {
+                const checked = getCheckedLinks();
+                if (checked.length === 0) {
+                    showToast('⚠️ Tidak ada link yang dicentang.', 'error');
+                    return;
+                }
+                openLinks(checked);
+            }
+
+            // ----- selection helpers -----
+            function selectAll() {
+                const checkboxes = previewList.querySelectorAll('input[type="checkbox"]');
+                checkboxes.forEach(cb => cb.checked = true);
+                updateLinkCount();
+            }
+
+            function deselectAll() {
+                const checkboxes = previewList.querySelectorAll('input[type="checkbox"]');
+                checkboxes.forEach(cb => cb.checked = false);
+                updateLinkCount();
+            }
+
+            // ----- AI: DeepSeek API with conversational response -----
+            async function callDeepSeek(prompt) {
+                const apiKey = apiKeyInput.value.trim();
+                if (!apiKey) {
+                    showToast('⚠️ Masukkan API Key DeepSeek terlebih dahulu.', 'error');
+                    return null;
+                }
+
+                const systemPrompt = `Anda adalah asisten AI yang membantu membuka link berdasarkan perintah pengguna dalam bahasa Indonesia.
+                Ekstrak angka-angka yang diminta dan berikan respon dalam format JSON valid:
+                {"range": "start-end" atau "angka1,angka2,angka3" atau null, "response": "kalimat respon yang akan diucapkan"}
+
+                Aturan:
+                - Jika perintah meminta membuka link dengan rentang, output range contoh: "1-5" atau "2,4,6".
+                - Jika perintah tidak berhubungan dengan membuka link, set range: null.
+                - Respon harus dalam bahasa Indonesia, ramah, dan jelas.
+
+                Contoh:
+                Input: "buka 1 sampai 5" -> {"range": "1-5", "response": "Baik, saya akan membuka link nomor 1 sampai 5."}
+                Input: "buka 2 dan 4" -> {"range": "2,4", "response": "Saya akan membuka link 2 dan 4."}
+                Input: "buka semua" -> {"range": "all", "response": "Baik, saya akan membuka semua link yang tersedia."}
+                Input: "apa kabar" -> {"range": null, "response": "Saya baik, terima kasih! Ada yang bisa saya bantu?"}
+                Input: "buka yang dicentang" -> {"range": "checked", "response": "Saya akan membuka link yang sudah dicentang."}
+
+                Hanya kembalikan JSON, tanpa teks tambahan.`;
+
+                try {
+                    const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${apiKey}`
+                        },
+                        body: JSON.stringify({
+                            model: 'deepseek-chat',
+                            messages: [
+                                { role: 'system', content: systemPrompt },
+                                { role: 'user', content: prompt }
+                            ],
+                            temperature: 0.2,
+                            max_tokens: 150
+                        })
+                    });
+
+                    if (!response.ok) {
+                        const errText = await response.text();
+                        throw new Error(`API error (${response.status}): ${errText}`);
+                    }
+
+                    const data = await response.json();
+                    const result = data.choices[0].message.content.trim();
+                    return result;
+                } catch (error) {
+                    showToast(`❌ Gagal memanggil DeepSeek: ${error.message}`, 'error');
+                    return null;
+                }
+            }
+
+            // Parse AI result and execute
+            function executeAIResult(resultStr) {
+                if (!resultStr) return false;
+
+                let parsed;
+                try {
+                    parsed = JSON.parse(resultStr);
+                } catch (e) {
+                    showToast(`⚠️ AI mengembalikan format tidak valid: ${resultStr}`, 'error');
+                    return false;
+                }
+
+                const range = parsed.range;
+                const responseText = parsed.response || 'Perintah diterima.';
+
+                // Ucapkan respon AI
+                speakText(responseText);
+
+                // Jika tidak ada range, selesai
+                if (!range) {
+                    showToast(`💬 ${responseText}`, 'info');
+                    return true;
+                }
+
+                // Eksekusi berdasarkan range
+                if (range === 'all') {
+                    // Pilih semua dan buka
+                    selectAll();
+                    const links = getCheckedLinks();
+                    if (links.length > 0) {
+                        openLinks(links);
+                    }
+                    return true;
+                }
+
+                if (range === 'checked') {
+                    // Buka yang dicentang
+                    openChecked();
+                    return true;
+                }
+
+                // Parse range atau daftar
+                let numbers = [];
+                const rangeMatch = range.match(/^(\d+)\s*[-–]\s*(\d+)$/);
+                if (rangeMatch) {
+                    const start = parseInt(rangeMatch[1], 10);
+                    const end = parseInt(rangeMatch[2], 10);
+                    if (start <= end) {
+                        for (let i = start; i <= end; i++) numbers.push(i);
+                    }
+                } else {
+                    const parts = range.split(',').map(s => s.trim());
+                    numbers = parts.map(Number).filter(n => !isNaN(n) && n > 0);
+                }
+
+                if (numbers.length === 0) {
+                    showToast(`⚠️ Tidak ada angka yang valid dari AI: "${range}"`, 'warning');
+                    return false;
+                }
+
+                // Select checkboxes
+                const checkboxes = previewList.querySelectorAll('input[type="checkbox"]');
+                let found = 0;
+                checkboxes.forEach(cb => {
+                    const num = parseInt(cb.dataset.number, 10);
+                    if (numbers.includes(num)) {
+                        cb.checked = true;
+                        found++;
+                    } else {
+                        cb.checked = false;
+                    }
+                });
+
+                updateLinkCount();
+
+                if (found === 0) {
+                    showToast(`⚠️ Tidak ada nomor yang cocok (${numbers.join(', ')}). Periksa range Anda.`, 'warning');
+                    return false;
+                }
+
+                // Buka link yang dicentang
+                const checkedLinks = getCheckedLinks();
+                if (checkedLinks.length > 0) {
+                    openLinks(checkedLinks);
+                }
+                return true;
+            }
+
+            async function processCommand() {
+                const command = commandInput.value.trim();
+                if (!command) {
+                    showToast('⚠️ Masukkan perintah terlebih dahulu.', 'error');
+                    return;
+                }
+
+                showToast('⏳ Mengirim ke AI...', 'info');
+                const result = await callDeepSeek(command);
+                if (!result) return;
+
+                // Tampilkan hasil AI di toast
+                showToast(`🤖 AI merespon: ${result}`, 'info');
+
+                // Eksekusi
+                executeAIResult(result);
+            }
+
+            // ----- Speech Recognition (push-to-talk) -----
+            function initSpeech() {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                if (!SpeechRecognition) {
+                    micBtn.style.display = 'none';
+                    toggleListenBtn.style.display = 'none';
+                    showToast('⚠️ Browser Anda tidak mendukung speech recognition.', 'warning');
+                    return null;
+                }
+
+                const rec = new SpeechRecognition();
+                rec.lang = 'id-ID';
+                rec.continuous = false;
+                rec.interimResults = false;
+                rec.maxAlternatives = 1;
+
+                rec.onstart = function() {
+                    isRecording = true;
+                    micBtn.classList.add('recording');
+                    micBtn.textContent = '⏹️';
+                    if (!continuousListening) {
+                        voiceStatus.textContent = '🎤 Mendengarkan...';
+                        voiceStatus.className = 'voice-status active';
+                    }
+                };
+
+                rec.onerror = function(event) {
+                    console.warn('Speech error:', event.error);
+                    isRecording = false;
+                    micBtn.classList.remove('recording');
+                    micBtn.textContent = '🎤';
+                    if (!continuousListening) {
+                        voiceStatus.textContent = '⏸️ Tidak aktif';
+                        voiceStatus.className = 'voice-status';
+                    }
+                    if (event.error === 'not-allowed') {
+                        showToast('❌ Izin mikrofon ditolak.', 'error');
+                    } else if (event.error !== 'no-speech') {
+                        showToast(`❌ Error speech: ${event.error}`, 'error');
+                    }
+                };
+
+                rec.onend = function() {
+                    isRecording = false;
+                    micBtn.classList.remove('recording');
+                    micBtn.textContent = '🎤';
+                    if (!continuousListening) {
+                        voiceStatus.textContent = '⏸️ Tidak aktif';
+                        voiceStatus.className = 'voice-status';
+                    } else {
+                        // Jika mode continuous, restart setelah jeda, kecuali AI sedang bicara
+                        if (continuousListening && !isSpeaking) {
+                            scheduleRecognitionRestart(500);
+                        }
+                    }
+                };
+
+                rec.onresult = function(event) {
+                    const transcript = event.results[0][0].transcript.trim();
+                    if (!transcript || transcript.length < 2) {
+                        // Abaikan hasil kosong atau terlalu pendek (noise)
+                        return;
+                    }
+                    commandInput.value = transcript;
+                    showToast(`🗣️ Dikenali: "${transcript}"`, 'success');
+
+                    // Proses perintah setelah dikenali
+                    setTimeout(() => {
+                        processCommand();
+                    }, 300);
+                };
+
+                return rec;
+            }
+
+            // ----- Toggle continuous listening -----
+            function toggleContinuousListening() {
+                if (!recognition) {
+                    showToast('❌ Speech recognition tidak tersedia.', 'error');
+                    return;
+                }
+
+                continuousListening = !continuousListening;
+
+                if (continuousListening) {
+                    // Mulai continuous
+                    voiceStatus.textContent = '🔊 Mendengar terus...';
+                    voiceStatus.className = 'voice-status active';
+                    toggleListenBtn.textContent = '🔴';
+                    toggleListenBtn.style.background = '#ef4444';
+                    showToast('🔊 Mode dengar terus-menerus AKTIF. Bicara untuk memberi perintah.', 'success');
+                    speakText('Mode dengar terus aktif, silakan bicara.');
+                    // Hentikan rekaman yang sedang berjalan
+                    if (isRecording) {
+                        try { recognition.stop(); } catch (_) {}
+                    }
+                    // Mulai recognition continuous setelah jeda (tunggu AI selesai bicara)
+                    setTimeout(() => {
+                        if (continuousListening && !isSpeaking) {
+                            try {
+                                recognition.continuous = true;
+                                recognition.start();
+                            } catch (_) {}
+                        }
+                    }, 2000);
+                } else {
+                    // Matikan continuous
+                    voiceStatus.textContent = '⏸️ Tidak aktif';
+                    voiceStatus.className = 'voice-status';
+                    toggleListenBtn.textContent = '🔛';
+                    toggleListenBtn.style.background = '#8b5cf6';
+                    showToast('⏸️ Mode dengar terus-menerus DINONAKTIFKAN.', 'info');
+                    speakText('Mode dengar terus dimatikan.');
+                    if (isRecording) {
+                        try { recognition.stop(); } catch (_) {}
+                    }
+                    recognition.continuous = false;
+                    // Hapus cooldown
+                    if (cooldownTimer) {
+                        clearTimeout(cooldownTimer);
+                        cooldownTimer = null;
+                    }
+                }
+            }
+
+            // ----- event listeners -----
+            // Preview auto
+            urlInput.addEventListener('input', renderPreview);
+            fromInput.addEventListener('input', renderPreview);
+            toInput.addEventListener('input', renderPreview);
+
+            previewBtn.addEventListener('click', () => {
+                renderPreview();
+                showToast(`📋 Pratinjau diperbarui (${linkCount.textContent})`, 'info');
+            });
+
+            openBtn.addEventListener('click', openAll);
+            openCheckedBtn.addEventListener('click', openChecked);
+
+            selectAllBtn.addEventListener('click', selectAll);
+            deselectAllBtn.addEventListener('click', deselectAll);
+
+            clearBtn.addEventListener('click', () => {
+                urlInput.value = '';
+                fromInput.value = '1';
+                toInput.value = '10';
+                renderPreview();
+                showToast('🧹 Semua field dibersihkan.', 'info');
+            });
+
+            // AI send
+            sendCommandBtn.addEventListener('click', processCommand);
+
+            clearCommandBtn.addEventListener('click', () => {
+                commandInput.value = '';
+                showToast('Perintah dikosongkan.', 'info');
+            });
+
+            // Enter on command input
+            commandInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    processCommand();
+                }
+            });
+
+            // Mic (push-to-talk)
+            if (window.SpeechRecognition || window.webkitSpeechRecognition) {
+                recognition = initSpeech();
+                micBtn.addEventListener('click', () => {
+                    if (!recognition) return;
+                    // Jika mode continuous aktif, matikan dulu
+                    if (continuousListening) {
+                        toggleContinuousListening(); // matikan continuous
+                        // lalu mulai push-to-talk
+                        setTimeout(() => {
+                            try {
+                                recognition.continuous = false;
+                                recognition.start();
+                            } catch (_) {}
+                        }, 300);
+                        return;
+                    }
+                    if (isRecording) {
+                        recognition.stop();
+                        return;
+                    }
+                    try {
+                        recognition.continuous = false;
+                        recognition.start();
+                    } catch (e) {
+                        showToast('❌ Gagal memulai rekaman.', 'error');
+                    }
+                });
+
+                // Toggle continuous
+                toggleListenBtn.addEventListener('click', toggleContinuousListening);
+            } else {
+                micBtn.style.display = 'none';
+                toggleListenBtn.style.display = 'none';
+            }
+
+            // Render awal
+            renderPreview();
+
+            // Update link count on checkbox change (delegation)
+            previewList.addEventListener('change', (e) => {
+                if (e.target.type === 'checkbox') {
+                    updateLinkCount();
+                }
+            });
+
+            console.log('✅ Buka Semua Link + AI Voice Interaktif siap!');
+        })();
+    </script>
+
+</body>
+</html>
